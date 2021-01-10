@@ -2,7 +2,10 @@
 
 package main
 
-import "errors"
+import (
+	"errors"
+	"strconv"
+)
 
 type trip struct {
 	ID              int     `json:"id"`
@@ -15,8 +18,9 @@ type trip struct {
 // In a real application, this list will most likely be fetched
 // from a database or from static files
 var tripList = []trip{
-	trip{ID: 0, Title: "Vylet na Hardegg", Content: "Jednoho krasneho dne jsme se vypravili za hranice svych moznosti...", KilometersCount: 20.0},
-	trip{ID: 1, Title: "Vylet na kole do Znojma", Content: "Na kole az do Znojma", KilometersCount: 54.2},
+	trip{ID: 0, Title: "Lorem", Content: "Ipsum", KilometersCount: 1.5},
+	trip{ID: 1, Title: "Vylet na Hardegg", Content: "Jednoho krasneho dne jsme se vypravili za hranice svych moznosti...", KilometersCount: 20.0},
+	trip{ID: 2, Title: "Vylet na kole do Znojma", Content: "Na kole az do Znojma", KilometersCount: 54.2},
 }
 
 // Return a list of all the articles
@@ -35,9 +39,14 @@ func getTripByID(id int) (*trip, error) {
 }
 
 // Create a new article with the title and content provided
-func createNewTrip(title, content string, kilometersCount float64) (*trip, error) {
+func createNewTrip(title, content, kilometersCount string) (*trip, error) {
 	// Set the ID of a new article to one more than the number of articles
-	a := trip{ID: len(tripList) + 1, Title: title, Content: content, KilometersCount: kilometersCount}
+	kmc, err := strconv.ParseFloat(kilometersCount, 64)
+	if err != nil {
+		return nil, nil
+	}
+
+	a := trip{ID: len(tripList) + 1, Title: title, Content: content, KilometersCount: kmc}
 
 	// Add the article to the list of articles
 	tripList = append(tripList, a)

@@ -33,7 +33,7 @@ func getTrip(c *gin.Context) {
 			// template
 			render(c, gin.H{
 				"title":   trip.Title,
-				"payload": trip}, "article.html")
+				"payload": trip}, "trip.html")
 
 		} else {
 			// If the article is not found, abort with an error
@@ -50,13 +50,13 @@ func createTrip(c *gin.Context) {
 	// Obtain the POSTed title and content values
 	title := c.PostForm("title")
 	content := c.PostForm("content")
-	kilometersCount := c.PostForm("km")
+	kilometersCount := c.PostForm("kmc")
 
 	if a, err := createNewTrip(title, content, kilometersCount); err == nil {
 		// If the article is created successfully, show success message
 		render(c, gin.H{
 			"title":   "Submission Successful",
-			"payload": a}, "submission-successful.html")
+			"payload": a}, "trip-successful.html")
 	} else {
 		// if there was an error while creating the article, abort with an error
 		c.AbortWithStatus(http.StatusBadRequest)

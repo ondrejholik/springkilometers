@@ -56,7 +56,7 @@ func initializeRoutes() {
 	tripRoutes := router.Group("/trip")
 	{
 		tripRoutes.GET("/view/:trip_id", getTrip)
-		tripRoutes.GET("/trips", showTripsPage)
+		tripRoutes.GET("/all", showTripsPage)
 		tripRoutes.GET("/create", ensureLoggedIn(), showTripCreationPage)
 		tripRoutes.POST("/create", ensureLoggedIn(), createTrip)
 	}
