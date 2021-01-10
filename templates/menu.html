@@ -8,10 +8,16 @@
       </a>
     </div>
     <ul class="nav navbar-nav">
+        <!--Display this link only when the user is logged in-->
+        <li><a href="/trips/">All trips</a></li>
       {{ if .is_logged_in }}
         <!--Display this link only when the user is logged in-->
         <li><a href="/article/create">Create Article</a></li>
       {{end}} 
+      {{ if .is_logged_in }}
+        <!--Display this link only when the user is logged in-->
+        <li><a href="/trip/create">Create Trip</a></li>
+      {{end}}
       {{ if not .is_logged_in }}
         <!--Display this link only when the user is not logged in-->
         <li><a href="/u/register">Register</a></li>

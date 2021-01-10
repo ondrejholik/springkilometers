@@ -52,4 +52,13 @@ func initializeRoutes() {
 		// Ensure that the user is logged in by using the middleware
 		articleRoutes.POST("/create", ensureLoggedIn(), createArticle)
 	}
+
+	tripRoutes := router.Group("/trip")
+	{
+		tripRoutes.GET("/view/:trip_id", getTrip)
+		tripRoutes.GET("/trips", showTripsPage)
+		tripRoutes.GET("/create", ensureLoggedIn(), showTripCreationPage)
+		tripRoutes.POST("/create", ensureLoggedIn(), createTrip)
+	}
+
 }
