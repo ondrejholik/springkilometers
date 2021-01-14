@@ -1,4 +1,4 @@
-module github.com/ondrejholik/jarnikilometry
+module github.com/ondrejholik/Spring-Kilometers
 
 go 1.14
 
