@@ -26,3 +26,19 @@ _testmain.go
 app
 .vscode
 debug
+
+# tmp sql and database files
+
+*.sql
+node[0-9]/*
+certs/
+cockroach-data/
+my-values.yaml
+jake_views.md
+example.yaml
+
+
+
+
+
+
