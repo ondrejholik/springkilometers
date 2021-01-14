@@ -5,6 +5,8 @@ package main
 import (
 	"errors"
 	"strconv"
+  "github.com/cockroachdb/cockroach-go/v2/crdb/crdbpgx"
+  "github.com/jackc/pgx/v4"
 )
 
 type trip struct {
@@ -14,21 +16,13 @@ type trip struct {
 	KilometersCount float64 `json:"kmc"`
 }
 
-// For this demo, we're storing the article list in memory
-// In a real application, this list will most likely be fetched
-// from a database or from static files
-var tripList = []trip{
-	trip{ID: 0, Title: "Lorem", Content: "Ipsum", KilometersCount: 1.5},
-	trip{ID: 1, Title: "Vylet na Hardegg", Content: "Jednoho krasneho dne jsme se vypravili za hranice svych moznosti...", KilometersCount: 20.0},
-	trip{ID: 2, Title: "Vylet na kole do Znojma", Content: "Na kole az do Znojma", KilometersCount: 54.2},
-}
 
-// Return a list of all the articles
+// All trips with users sorted by date
 func getAllTrips() []trip {
 	return tripList
 }
 
-// Fetch an article based on the ID supplied
+// Return trip given id
 func getTripByID(id int) (*trip, error) {
 	for _, a := range tripList {
 		if a.ID == id {
@@ -38,18 +32,13 @@ func getTripByID(id int) (*trip, error) {
 	return nil, errors.New("Trip not found")
 }
 
-// Create a new article with the title and content provided
+// Create new trip with all users
 func createNewTrip(title, content, kilometersCount string) (*trip, error) {
-	// Set the ID of a new article to one more than the number of articles
 	kmc, err := strconv.ParseFloat(kilometersCount, 64)
 	if err != nil {
 		return nil, nil
 	}
-
 	a := trip{ID: len(tripList) + 1, Title: title, Content: content, KilometersCount: kmc}
-
-	// Add the article to the list of articles
 	tripList = append(tripList, a)
-
 	return &a, nil
 }

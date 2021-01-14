@@ -5,6 +5,8 @@ package main
 import (
 	"errors"
 	"strings"
+  "github.com/cockroachdb/cockroach-go/v2/crdb/crdbpgx"
+  "github.com/jackc/pgx/v4"
 )
 
 type user struct {
@@ -12,10 +14,7 @@ type user struct {
 	Password string `json:"-"`
 }
 
-// For this demo, we're storing the user list in memory
-// We also have some users predefined.
-// In a real application, this list will most likely be fetched
-// from a database. Moreover, in production settings, you should
+// Moreover, in production settings, you should
 // store passwords securely by salting and hashing them instead
 // of using them as we're doing in this demo
 var userList = []user{
@@ -44,7 +43,6 @@ func registerNewUser(username, password string) (*user, error) {
 	}
 
 	u := user{Username: username, Password: password}
-
 	userList = append(userList, u)
 
 	return &u, nil
