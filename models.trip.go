@@ -16,7 +16,6 @@ type trip struct {
 	KilometersCount float64 `json:"kmc"`
 }
 
-
 // All trips with users sorted by date
 func getAllTrips() []trip {
 	return tripList
