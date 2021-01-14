@@ -31,7 +31,6 @@ func main() {
 	router.Run()
 
 	// Database initialize
-
 	config, err := pgx.ParseConfig("postgres://test:helloworld@localhost:26257/jarnikilometry?sslmode=require")
 	if err != nil {
 		log.Fatal("error configuring the database: ", err)

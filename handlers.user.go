@@ -23,6 +23,7 @@ func performLogin(c *gin.Context) {
 	password := c.PostForm("password")
 
 	// Check if the username/password combination is valid
+
 	if isUserValid(username, password) {
 		// If the username/password is valid set the token in a cookie
 		token := generateSessionToken()
@@ -45,6 +46,7 @@ func generateSessionToken() string {
 	// We're using a random 16 character string as the session token
 	// This is NOT a secure way of generating session tokens
 	// DO NOT USE THIS IN PRODUCTION
+	// TODO: proper way to generate session token
 	return strconv.FormatInt(rand.Int63(), 16)
 }
 

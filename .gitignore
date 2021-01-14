@@ -36,3 +36,6 @@ cockroach-data/
 my-values.yaml
 jake_views.md
 example.yaml
+
+go.sum
+

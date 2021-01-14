@@ -5,8 +5,6 @@ package main
 import (
 	"errors"
 	"strings"
-  "github.com/cockroachdb/cockroach-go/v2/crdb/crdbpgx"
-  "github.com/jackc/pgx/v4"
 )
 
 type user struct {

@@ -5,8 +5,6 @@ package main
 import (
 	"errors"
 	"strconv"
-  "github.com/cockroachdb/cockroach-go/v2/crdb/crdbpgx"
-  "github.com/jackc/pgx/v4"
 )
 
 type trip struct {
