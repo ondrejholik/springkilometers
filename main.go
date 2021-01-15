@@ -14,6 +14,24 @@ import (
 var router *gin.Engine
 
 func main() {
+
+	// Database initialize //
+	config, err := pgx.ParseConfig("postgres://test:helloworld@localhost:26257/jarnikilometry?sslmode=require")
+	if err != nil {
+		log.Fatal("error configuring the database: ", err)
+	}
+
+	config.TLSConfig.ServerName = "localhost"
+
+	// connect to jarnikilometry database
+	conn, err := pgx.ConnectConfig(context.Background(), config)
+	if err != nil {
+		log.Fatal("error connecting to the database: ", err)
+	}
+	defer conn.Close(context.Background())
+
+	// ------------------------------- //
+
 	// Set Gin to production mode
 	gin.SetMode(gin.ReleaseMode)
 
@@ -29,21 +47,6 @@ func main() {
 
 	// Start serving the application
 	router.Run()
-
-	// Database initialize
-	config, err := pgx.ParseConfig("postgres://test:helloworld@localhost:26257/jarnikilometry?sslmode=require")
-	if err != nil {
-		log.Fatal("error configuring the database: ", err)
-	}
-
-	config.TLSConfig.ServerName = "localhost"
-
-	// Connect to the "bank" database.
-	conn, err := pgx.ConnectConfig(context.Background(), config)
-	if err != nil {
-		log.Fatal("error connecting to the database: ", err)
-	}
-	defer conn.Close(context.Background())
 }
 
 // Render one of HTML, JSON or CSV based on the 'Accept' header of the request

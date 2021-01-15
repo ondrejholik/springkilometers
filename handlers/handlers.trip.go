@@ -10,7 +10,7 @@ import (
 )
 
 func showTripsPage(c *gin.Context) {
-	trips := getAllTrips()
+	trips := getTrips()
 
 	// Call the render function with the name of the template to render
 	render(c, gin.H{
@@ -51,8 +51,10 @@ func createTrip(c *gin.Context) {
 	title := c.PostForm("title")
 	content := c.PostForm("content")
 	kilometersCount := c.PostForm("kmc")
+	// Slice of users
+	users := c.PostForm("users")
 
-	if a, err := createNewTrip(title, content, kilometersCount); err == nil {
+	if a, err := createNewTrip(title, content, kilometersCount, users); err == nil {
 		// If the article is created successfully, show success message
 		render(c, gin.H{
 			"title":   "Submission Successful",
