@@ -4,28 +4,55 @@ package main
 
 import (
 	"errors"
+	"math/rand"
 	"strings"
+	"time"
+
+	"golang.org/x/crypto/sha3"
 )
 
 type user struct {
 	Username string `json:"username"`
 	Password string `json:"-"`
+	Salt     string `json:"-"`
 }
 
-// Moreover, in production settings, you should
-// store passwords securely by salting and hashing them instead
-// of using them as we're doing in this demo
-var userList = []user{
-	user{Username: "user1", Password: "pass1"},
-	user{Username: "user2", Password: "pass2"},
-	user{Username: "user3", Password: "pass3"},
+// random salt with given length
+func salting(n int) string {
+	rand.Seed(time.Now().UnixNano())
+	var letterBytes = []byte("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+	b := make([]byte, n)
+	for i := range b {
+		b[i] = letterBytes[rand.Int63()%int64(len(letterBytes))]
+	}
+	return string(b)
+}
+
+// sha3 hash algorithm
+func crypting(s string) string {
+	h := sha3.New512()
+	h.Write([]byte(s))
+	pass := h.Sum(nil)
+	return pass
 }
 
 // Check if the username and password combination is valid
-func isUserValid(username, password string) bool {
-	// TODO: hash function + salt
+func isUserValid(username, password) bool {
+
+	// TODO: Find if user exists
+	// return false if not
+
+	// TODO: Get salt, hashed password from existing user
+	// SQL: SELECT users.password, users.salt FROM users WHERE users.username = $username -> salt, cryptpass
+	cryptpass := nil
+	dbsalt := nil
+
+	// TODO: hash function + salt to input password
+	pass := crypting(password + dbsalt)
 
 	// TODO: compare username, password(hashed) with input
+
+	return pass == cryptpass
 }
 
 // Register a new user with the given username and password
@@ -36,10 +63,16 @@ func registerNewUser(username, password string) (*user, error) {
 		return nil, errors.New("The username isn't available")
 	}
 
-	u := user{Username: username, Password: password}
-	userList = append(userList, u)
+	salt := salting(10)
+	pass := crypting(password + salt)
+
+	u := user{Username: username, Password: pass, Salt: salt}
+
+	// TODO: add $u to database
+	// SQL: INSERT INTO users ( username, password, salt) VALUES ( $username, $pass, $salt)
 
 	return &u, nil
+	// idk if return
 }
 
 // Check if the supplied username is available
