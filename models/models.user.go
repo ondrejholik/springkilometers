@@ -33,7 +33,7 @@ func crypting(s string) string {
 	h := sha3.New512()
 	h.Write([]byte(s))
 	pass := h.Sum(nil)
-	return pass
+	return string(pass)
 }
 
 // Check if the username and password combination is valid

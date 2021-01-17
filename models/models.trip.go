@@ -37,7 +37,7 @@ func createNewTrip(title, content, kilometersCount string, users) (*trip, error)
 	if err != nil {
 		return nil, nil
 	}
-	_newTrip := trip{Title: title, Content: content, KilometersCount: kmc}
+	// _newTrip := trip{Title: title, Content: content, KilometersCount: kmc}
 
 	// TODO: New database record  with $newTrip
 
