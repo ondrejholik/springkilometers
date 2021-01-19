@@ -14,6 +14,7 @@ type trip struct {
 	Date            string  `json:date`
 }
 
+var db = db.GetDB
 // All trips with users sorted by date
 func getTrips() []trip {
 

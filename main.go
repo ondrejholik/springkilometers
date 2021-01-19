@@ -3,34 +3,20 @@
 package main
 
 import (
-	"context"
-	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jackc/pgx/v4"
+  "github.com/jackc/pgx/v4"
+  db "./db"
 )
 
 var router *gin.Engine
 
+func init() {
+	db := db.GetDB()
+}
+
 func main() {
-
-	// Database initialize //
-	config, err := pgx.ParseConfig("postgres://test:helloworld@localhost:26257/jarnikilometry?sslmode=require")
-	if err != nil {
-		log.Fatal("error configuring the database: ", err)
-	}
-
-	config.TLSConfig.ServerName = "localhost"
-
-	// connect to jarnikilometry database
-	conn, err := pgx.ConnectConfig(context.Background(), config)
-	if err != nil {
-		log.Fatal("error connecting to the database: ", err)
-	}
-	defer conn.Close(context.Background())
-
-	// ------------------------------- //
 
 	// Set Gin to production mode
 	gin.SetMode(gin.ReleaseMode)
