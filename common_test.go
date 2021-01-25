@@ -1,4 +1,4 @@
-package main
+package springkilometers
 
 import (
 	"net/http"

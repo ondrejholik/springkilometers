@@ -1,22 +1,18 @@
-// main.go
-
-package main
+package springkilometers
 
 import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-  "github.com/jackc/pgx/v4"
-  db "./db"
+	models "github.com/ondrejholik/springkilometers/models"
 )
 
 var router *gin.Engine
 
-func init() {
-	db := db.GetDB()
-}
-
 func main() {
+
+	// DB connection
+	db := models.ConnectToDB()
 
 	// Set Gin to production mode
 	gin.SetMode(gin.ReleaseMode)
@@ -29,7 +25,7 @@ func main() {
 	router.LoadHTMLGlob("templates/*")
 
 	// Initialize the routes
-	initializeRoutes()
+	initializeRoutes(db)
 
 	// Start serving the application
 	router.Run()
