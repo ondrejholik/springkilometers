@@ -1,6 +1,6 @@
 // middleware.auth_test.go
 
-package main
+package springkilometers
 
 import (
 	"net/http"

@@ -1,4 +1,4 @@
-package main
+package springkilometers
 
 import (
 	"net/http"
@@ -10,7 +10,6 @@ import (
 )
 
 var tmpUserList []user
-var tmpArticleList []article
 
 // This function is used to do setup before executing the test functions
 func TestMain(m *testing.M) {
@@ -61,11 +60,9 @@ func testMiddlewareRequest(t *testing.T, r *gin.Engine, expectedHTTPCode int) {
 // for testing
 func saveLists() {
 	tmpUserList = userList
-	tmpArticleList = articleList
 }
 
 // This function is used to restore the main lists from the temporary one
 func restoreLists() {
 	userList = tmpUserList
-	articleList = tmpArticleList
 }

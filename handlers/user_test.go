@@ -1,6 +1,6 @@
 // handlers.user_test.go
 
-package main
+package springkilometers
 
 import (
 	"io/ioutil"

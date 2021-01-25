@@ -1,12 +1,12 @@
 // models.article_test.go
 
-package main
+package springkilometers
 
 import "testing"
 
 // Test the function that fetches all articles
 func TestGetAllTrips(t *testing.T) {
-	alist := getAllTrips()
+	alist := GetAllTrips()
 
 	// Check that the length of the list of articles returned is the
 	// same as the length of the global variable holding the list
@@ -39,7 +39,7 @@ func TestGetTripByID(t *testing.T) {
 // Test the functiogetAllTrips creates a new article
 func TestCreateNewTrip(t *testing.T) {
 	// get the original count of articles
-	originalLength := len(getAllTrips())
+	originalLength := len(GetAllTrips())
 
 	// add another article
 	a, err := createNewTrip("New test title", "New test content", "12.5")

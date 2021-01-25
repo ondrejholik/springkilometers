@@ -1,6 +1,6 @@
 // handlers.user.go
 
-package main
+package springkilometers
 
 import (
 	"math/rand"
@@ -8,28 +8,39 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	models "github.com/ondrejholik/springkilometers/models"
 )
 
-func showLoginPage(c *gin.Context) {
+//ShowIndexPage --
+func ShowIndexPage(c *gin.Context) {
+	Render(c, gin.H{
+		"title": "Index",
+	}, "index.html")
+}
+
+// ShowLoginPage --
+func ShowLoginPage(c *gin.Context) {
 	// Call the render function with the name of the template to render
-	render(c, gin.H{
+	Render(c, gin.H{
 		"title": "Login",
 	}, "login.html")
 }
 
-func performLogin(c *gin.Context) {
+// PerformLogin --
+func PerformLogin(c *gin.Context) {
 	// Obtain the POSTed username and password values
 	username := c.PostForm("username")
 	password := c.PostForm("password")
 
 	// Check if the username/password combination is valid
-	if isUserValid(username, password) {
+
+	if models.IsUserValid(username, password) {
 		// If the username/password is valid set the token in a cookie
-		token := generateSessionToken()
+		token := GenerateSessionToken()
 		c.SetCookie("token", token, 3600, "", "", false, true)
 		c.Set("is_logged_in", true)
 
-		render(c, gin.H{
+		Render(c, gin.H{
 			"title": "Successful Login"}, "login-successful.html")
 
 	} else {
@@ -41,14 +52,17 @@ func performLogin(c *gin.Context) {
 	}
 }
 
-func generateSessionToken() string {
+// GenerateSessionToken --
+func GenerateSessionToken() string {
 	// We're using a random 16 character string as the session token
 	// This is NOT a secure way of generating session tokens
 	// DO NOT USE THIS IN PRODUCTION
+	// TODO: proper way to generate session token
 	return strconv.FormatInt(rand.Int63(), 16)
 }
 
-func logout(c *gin.Context) {
+// Logout --
+func Logout(c *gin.Context) {
 	// Clear the cookie
 	c.SetCookie("token", "", -1, "", "", false, true)
 
@@ -56,24 +70,26 @@ func logout(c *gin.Context) {
 	c.Redirect(http.StatusTemporaryRedirect, "/")
 }
 
-func showRegistrationPage(c *gin.Context) {
+// ShowRegistrationPage --
+func ShowRegistrationPage(c *gin.Context) {
 	// Call the render function with the name of the template to render
-	render(c, gin.H{
+	Render(c, gin.H{
 		"title": "Register"}, "register.html")
 }
 
-func register(c *gin.Context) {
+// Register --
+func Register(c *gin.Context) {
 	// Obtain the POSTed username and password values
 	username := c.PostForm("username")
 	password := c.PostForm("password")
 
-	if _, err := registerNewUser(username, password); err == nil {
+	if _, err := models.RegisterNewUser(username, password); err == nil {
 		// If the user is created, set the token in a cookie and log the user in
-		token := generateSessionToken()
+		token := GenerateSessionToken()
 		c.SetCookie("token", token, 3600, "", "", false, true)
 		c.Set("is_logged_in", true)
 
-		render(c, gin.H{
+		Render(c, gin.H{
 			"title": "Successful registration & Login"}, "login-successful.html")
 
 	} else {
@@ -83,5 +99,25 @@ func register(c *gin.Context) {
 			"ErrorTitle":   "Registration Failed",
 			"ErrorMessage": err.Error()})
 
+	}
+}
+
+// Render one of HTML, JSON or CSV based on the 'Accept' header of the request
+// If the header doesn't specify this, HTML is rendered, provided that
+// the template name is present
+func Render(c *gin.Context, data gin.H, templateName string) {
+	loggedInInterface, _ := c.Get("is_logged_in")
+	data["is_logged_in"] = loggedInInterface.(bool)
+
+	switch c.Request.Header.Get("Accept") {
+	case "application/json":
+		// Respond with JSON
+		c.JSON(http.StatusOK, data["payload"])
+	case "application/xml":
+		// Respond with XML
+		c.XML(http.StatusOK, data["payload"])
+	default:
+		// Respond with HTML
+		c.HTML(http.StatusOK, templateName, data)
 	}
 }

@@ -1,6 +1,6 @@
 // models.user_test.go
 
-package main
+package springkilometers
 
 import "testing"
 
@@ -45,14 +45,14 @@ func TestInvalidUserRegistration(t *testing.T) {
 	saveLists()
 
 	// Try to register a user with a used username
-	u, err := registerNewUser("user1", "pass1")
+	u, err := RegisterNewUser("user1", "pass1")
 
 	if err == nil || u != nil {
 		t.Fail()
 	}
 
 	// Try to register with a blank password
-	u, err = registerNewUser("newuser", "")
+	u, err = RegisterNewUser("newuser", "")
 
 	if err == nil || u != nil {
 		t.Fail()
@@ -76,7 +76,7 @@ func TestUsernameAvailability(t *testing.T) {
 	}
 
 	// Register a new user
-	registerNewUser("newuser", "newpass")
+	RegisterNewUser("newuser", "newpass")
 
 	// This newly registered username should not be available
 	if isUsernameAvailable("newuser") {

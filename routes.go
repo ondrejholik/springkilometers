@@ -1,15 +1,20 @@
-// routes.go
-
 package main
+
+import (
+	handlers "github.com/ondrejholik/springkilometers/handlers"
+	mid "github.com/ondrejholik/springkilometers/middleware"
+)
 
 func initializeRoutes() {
 
 	// Use the setUserStatus middleware for every route to set a flag
 	// indicating whether the request was from an authenticated user or not
-	router.Use(setUserStatus())
+	router.Use(mid.SetUserStatus())
+
+	// Use db in context
 
 	// Handle the index route
-	router.GET("/", showIndexPage)
+	router.GET("/", handlers.ShowIndexPage)
 
 	// Group user related routes together
 	userRoutes := router.Group("/u")
@@ -17,48 +22,44 @@ func initializeRoutes() {
 		// Handle the GET requests at /u/login
 		// Show the login page
 		// Ensure that the user is not logged in by using the middleware
-		userRoutes.GET("/login", ensureNotLoggedIn(), showLoginPage)
+		userRoutes.GET("/login", mid.EnsureNotLoggedIn(), handlers.ShowLoginPage)
 
 		// Handle POST requests at /u/login
 		// Ensure that the user is not logged in by using the middleware
-		userRoutes.POST("/login", ensureNotLoggedIn(), performLogin)
+		userRoutes.POST("/login", mid.EnsureNotLoggedIn(), handlers.PerformLogin)
 
 		// Handle GET requests at /u/logout
 		// Ensure that the user is logged in by using the middleware
-		userRoutes.GET("/logout", ensureLoggedIn(), logout)
+		userRoutes.GET("/logout", mid.EnsureLoggedIn(), handlers.Logout)
 
 		// Handle the GET requests at /u/register
 		// Show the registration page
 		// Ensure that the user is not logged in by using the middleware
-		userRoutes.GET("/register", ensureNotLoggedIn(), showRegistrationPage)
+		userRoutes.GET("/register", mid.EnsureNotLoggedIn(), handlers.ShowRegistrationPage)
 
 		// Handle POST requests at /u/register
 		// Ensure that the user is not logged in by using the middleware
-		userRoutes.POST("/register", ensureNotLoggedIn(), register)
-	}
-
-	// Group article related routes together
-	articleRoutes := router.Group("/article")
-	{
-		// Handle GET requests at /article/view/some_article_id
-		articleRoutes.GET("/view/:article_id", getArticle)
-
-		// Handle the GET requests at /article/create
-		// Show the article creation page
-		// Ensure that the user is logged in by using the middleware
-		articleRoutes.GET("/create", ensureLoggedIn(), showArticleCreationPage)
-
-		// Handle POST requests at /article/create
-		// Ensure that the user is logged in by using the middleware
-		articleRoutes.POST("/create", ensureLoggedIn(), createArticle)
+		userRoutes.POST("/register", mid.EnsureNotLoggedIn(), handlers.Register)
 	}
 
 	tripRoutes := router.Group("/trip")
 	{
-		tripRoutes.GET("/view/:trip_id", getTrip)
-		tripRoutes.GET("/all", showTripsPage)
-		tripRoutes.GET("/create", ensureLoggedIn(), showTripCreationPage)
-		tripRoutes.POST("/create", ensureLoggedIn(), createTrip)
+		tripRoutes.GET("/view/:trip_id", handlers.GetTrip)
+		tripRoutes.GET("/all", handlers.ShowTripsPage)
+		tripRoutes.GET("/create", mid.EnsureLoggedIn(), handlers.ShowTripCreationPage)
+		tripRoutes.POST("/create", mid.EnsureLoggedIn(), handlers.CreateTrip)
 	}
 
 }
+
+// SetDBMiddleware --
+/*
+func SetDBMiddleware(next http.Handler) http.Handler {
+	database := models.Setup()
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		timeoutContext, _ := context.WithTimeout(context.Background(), time.Second)
+		ctx := context.WithValue(r.Context(), "DB", database.WithContext(timeoutContext))
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
+*/

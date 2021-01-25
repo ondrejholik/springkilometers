@@ -1,39 +1,41 @@
-// handlers.article.go
-
-package main
+package springkilometers
 
 import (
 	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	models "github.com/ondrejholik/springkilometers/models"
 )
 
-func showIndexPage(c *gin.Context) {
-	articles := getAllArticles()
+// ShowTripsPage --
+func ShowTripsPage(c *gin.Context) {
+	trips := models.GetTrips()
 
 	// Call the render function with the name of the template to render
-	render(c, gin.H{
-		"title":   "Home Page",
-		"payload": articles}, "index.html")
+	Render(c, gin.H{
+		"title":   "Trips Page",
+		"payload": trips}, "trips.html")
 }
 
-func showArticleCreationPage(c *gin.Context) {
+// ShowTripCreationPage --
+func ShowTripCreationPage(c *gin.Context) {
 	// Call the render function with the name of the template to render
-	render(c, gin.H{
-		"title": "Create New Article"}, "create-article.html")
+	Render(c, gin.H{
+		"title": "Create New Trip"}, "create-trip.html")
 }
 
-func getArticle(c *gin.Context) {
+// GetTrip --
+func GetTrip(c *gin.Context) {
 	// Check if the article ID is valid
-	if articleID, err := strconv.Atoi(c.Param("article_id")); err == nil {
+	if tripID, err := strconv.Atoi(c.Param("trip_id")); err == nil {
 		// Check if the article exists
-		if article, err := getArticleByID(articleID); err == nil {
+		if trip, err := models.GetTripByID(tripID); err == nil {
 			// Call the render function with the title, article and the name of the
 			// template
-			render(c, gin.H{
-				"title":   article.Title,
-				"payload": article}, "article.html")
+			Render(c, gin.H{
+				"title":   trip.Title,
+				"payload": trip}, "trip.html")
 
 		} else {
 			// If the article is not found, abort with an error
@@ -46,16 +48,20 @@ func getArticle(c *gin.Context) {
 	}
 }
 
-func createArticle(c *gin.Context) {
+// CreateTrip --
+func CreateTrip(c *gin.Context) {
 	// Obtain the POSTed title and content values
 	title := c.PostForm("title")
 	content := c.PostForm("content")
+	kilometersCount := c.PostForm("kmc")
+	// Slice of users
+	//users := c.PostForm("users")
 
-	if a, err := createNewArticle(title, content); err == nil {
+	if a, err := models.CreateNewTrip(title, content, kilometersCount); err == nil {
 		// If the article is created successfully, show success message
-		render(c, gin.H{
+		Render(c, gin.H{
 			"title":   "Submission Successful",
-			"payload": a}, "submission-successful.html")
+			"payload": a}, "trip-successful.html")
 	} else {
 		// if there was an error while creating the article, abort with an error
 		c.AbortWithStatus(http.StatusBadRequest)
