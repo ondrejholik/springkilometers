@@ -12,8 +12,10 @@ import (
 	"gorm.io/gorm"
 )
 
-type user struct {
+// User --
+type User struct {
 	gorm.Model
+	UserID   int    `"json:"userid`
 	Username string `json:"username"`
 	Password string `json:"-"`
 	Salt     string `json:"-"`
@@ -38,8 +40,9 @@ func crypting(s string) string {
 	return string(pass)
 }
 
+// IsUserValid --
 // Check if the username and password combination is valid
-func isUserValid(username, password string) bool {
+func IsUserValid(username, password string) bool {
 
 	if isUsernameAvailable(username) {
 		return false
@@ -58,8 +61,9 @@ func isUserValid(username, password string) bool {
 	return pass == cryptpass
 }
 
-// Register a new user with the given username and password
-func RegisterNewUser(username, password string) (*user, error) {
+// RegisterNewUser a new user with the given username and password
+func RegisterNewUser(username, password string) (*User, error) {
+	var user User
 	if strings.TrimSpace(password) == "" {
 		return nil, errors.New("The password can't be empty")
 	} else if !isUsernameAvailable(username) {
@@ -69,18 +73,22 @@ func RegisterNewUser(username, password string) (*user, error) {
 	salt := salting(10)
 	pass := crypting(password + salt)
 
-	u := user{Username: username, Password: pass, Salt: salt}
+	user = User{Username: username, Password: pass, Salt: salt}
+	result := db.Create(&user) // pass pointer of data to Create
+	if result.Error != nil {
+		return nil, result.Error
+	}
 
-	// TODO: add $user to database
-	// SQL: INSERT INTO users ( username, password, salt) VALUES ( $username, $pass, $salt)
-
-	return &u, nil
-	// idk if return
+	return &user, nil
 }
 
 // Check if the supplied username is available
 func isUsernameAvailable(username string) bool {
-	// TODO: exist sql command
-	// SQL: SELECT users.username FROM users where users.username = $username
+	var user User
+	db.Where("name = ?", username).First(&user)
+	if user.UserID > 0 {
+		return false
+	}
+
 	return true
 }

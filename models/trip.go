@@ -1,72 +1,88 @@
-// models.trip.go
-
 package springkilometers
 
 import (
+	"log"
 	"strconv"
-	"gorm.io/driver/postgres"
+
 	"gorm.io/gorm"
-	"context"
 )
 
-type trip struct {
-	gorm.Model
-	ID              string `json:"id"`
+// Trip model
+type Trip struct {
+	Model
+	TripID          int     `json:"id"`
 	Title           string  `json:"title"`
 	Content         string  `json:"content"`
 	KilometersCount float64 `json:"kmc"`
 	Date            string  `json:date`
 }
 
-
-
 // GetTrips --
 // All trips with users sorted by date
-// TODO: get trips 
-func GetTrips() []trip {
-	db, ok := ctx.Value("DB").(*gorm.DB)
-	result := database.Find(&trip)
-	return result
+func GetTrips() []Trip {
+	var trips []Trip
+	result := db.Find(&trips)
+	if result.Error != nil {
+		log.Panic(result.Error)
+	}
+	return trips
 }
 
-// GetTripByID
+// GetTripByID --
 // Return trip given id
-func GetTripByID(id string) (*trip, error) {
-	// TODO(Ez): get trip by id
-	// SQL: select * from trips where trip.id = $id
-	database := GetDB()
-	database.
+func GetTripByID(id int) (Trip, error) {
+	var trip Trip
+	result := db.First(&trip, id)
+	if result.Error != nil {
+		return Trip{}, result.Error
+	}
+	return trip, nil
 
-	return nil, nil
 }
 
-// DeleteTripUserIDReference
-func DeleteTripUserIDReference(id string) bool {
-	// TODO(Ez): delete all trips from trip_user table with specific trip_id
-	// SQL : DELETE FROM trip_user WHERE trip_user.trip_id = $id
+// ExistTripByID --
+func ExistTripByID(id int) (bool, error) {
+	var trip Trip
+	err := db.Select("trip_id").Where("trip_id = ? AND deleted_on = ? ", id, 0).First(&trip).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return false, err
+	}
+
+	if trip.TripID > 0 {
+		return true, nil
+	}
+	return false, nil
 }
 
-// CreateNew trip with all users
-func CreateNewTrip(title, content, kilometersCount string, users) (*trip, error) {
+// DeleteTripByID --
+func DeleteTripByID(id int) (bool, error) {
+	db.Delete(&Trip{}, id)
+	return true, nil
+}
+
+// CreateNewTrip trip with all users
+func CreateNewTrip(title, content, kilometersCount string) (*Trip, error) {
 	kmc, err := strconv.ParseFloat(kilometersCount, 64)
 	if err != nil {
 		return nil, nil
 	}
-	newTrip := trip{Title: title, Content: content, KilometersCount: kmc}
+	newTrip := Trip{Title: title, Content: content, KilometersCount: kmc}
 
 	// TODO: New database record  with $newTrip
+	result := db.Create(&newTrip) // pass pointer of data to Create
+	if result.Error != nil {
+		log.Panic(result.Error)
+		return nil, result.Error
+	}
+	return &newTrip, nil
 
 	// TODO: Each user who append in createNewTrip add to trip_user. With values trip_id, user_id.
-	return &a, nil
 }
 
 // UpdateTrip --
-func UpdateTrip(title, content, kilometersCount string, users) (*trip, error) {
+func UpdateTrip(title, content, kilometersCount string) bool {
 	// TODO: Update all values in trips.
 	// TODO: Delete all users in trip_user with this specific trip_id
 	// TODO: Each user who append in createNewTrip add to trip_user. With values trip_id, user_id.
-}
-
-func deleteTrip(title, content, kilometersCount string, users) (*trip, error) {
-	// TODO: Delete all users in trip_user with this specific trip_id
+	return false
 }
