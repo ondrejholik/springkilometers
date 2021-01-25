@@ -29,7 +29,6 @@ debug
 
 # tmp sql and database files
 
-cockroachdb/
-
 go.sum
+springkilometers
 
