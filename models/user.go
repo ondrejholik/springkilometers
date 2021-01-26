@@ -3,19 +3,19 @@
 package springkilometers
 
 import (
+	"encoding/hex"
 	"errors"
 	"math/rand"
 	"strings"
 	"time"
 
 	"golang.org/x/crypto/sha3"
-	"gorm.io/gorm"
 )
 
 // User --
 type User struct {
-	gorm.Model
-	UserID   int    `json:"userid"`
+	//Model
+	UserID   int    `json:"user_id"`
 	Username string `json:"username"`
 	Password string `json:"-"`
 	Salt     string `json:"-"`
@@ -37,7 +37,7 @@ func crypting(s string) string {
 	h := sha3.New512()
 	h.Write([]byte(s))
 	pass := h.Sum(nil)
-	return string(pass)
+	return hex.EncodeToString(pass)
 }
 
 // IsUserValid --
@@ -62,12 +62,12 @@ func IsUserValid(username, password string) bool {
 }
 
 // RegisterNewUser a new user with the given username and password
-func RegisterNewUser(username, password string) (*User, error) {
+func RegisterNewUser(username, password string) error {
 	var user User
 	if strings.TrimSpace(password) == "" {
-		return nil, errors.New("The password can't be empty")
+		return errors.New("The password can't be empty")
 	} else if !isUsernameAvailable(username) {
-		return nil, errors.New("The username isn't available")
+		return errors.New("The username isn't available")
 	}
 
 	salt := salting(10)
@@ -76,16 +76,16 @@ func RegisterNewUser(username, password string) (*User, error) {
 	user = User{Username: username, Password: pass, Salt: salt}
 	result := db.Create(&user) // pass pointer of data to Create
 	if result.Error != nil {
-		return nil, result.Error
+		return result.Error
 	}
 
-	return &user, nil
+	return nil
 }
 
 // Check if the supplied username is available
 func isUsernameAvailable(username string) bool {
 	var user User
-	db.Where("name = ?", username).First(&user)
+	db.Where("username = ?", username).First(&user)
 	if user.UserID > 0 {
 		return false
 	}
