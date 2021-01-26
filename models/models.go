@@ -6,8 +6,6 @@ import (
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-
-	setting "github.com/ondrejholik/springkilometers/misc"
 )
 
 var db *gorm.DB
@@ -23,12 +21,11 @@ type Model struct {
 // Setup initializes the database instance
 func Setup() {
 	var err error
-	db, err = gorm.Open(postgres.Open(fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8&parseTime=True&loc=Local",
-		setting.DatabaseSetting.User,
-		setting.DatabaseSetting.Password,
-		setting.DatabaseSetting.Host,
-		setting.DatabaseSetting.Name)), &gorm.Config{})
+	dsn := fmt.Sprintf("host=127.0.0.1 user=postgres password=postgres dbname=springkilometers port=5432 sslmode=disable ") //setting.DatabaseSetting.User,
+	//setting.DatabaseSetting.Password,
+	//setting.DatabaseSetting.Name)
 
+	db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatalf("models.Setup err: %v", err)
 	}
