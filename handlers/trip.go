@@ -54,10 +54,11 @@ func CreateTrip(c *gin.Context) {
 	title := c.PostForm("title")
 	content := c.PostForm("content")
 	kilometersCount := c.PostForm("kmc")
+	withbike := c.PostForm("withbike")
 	// Slice of users
 	//users := c.PostForm("users")
 
-	if a, err := models.CreateNewTrip(title, content, kilometersCount); err == nil {
+	if a, err := models.CreateNewTrip(title, content, kilometersCount, withbike); err == nil {
 		// If the article is created successfully, show success message
 		Render(c, gin.H{
 			"title":   "Submission Successful",

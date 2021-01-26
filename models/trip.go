@@ -3,6 +3,7 @@ package springkilometers
 import (
 	"log"
 	"strconv"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -10,11 +11,12 @@ import (
 // Trip model
 type Trip struct {
 	Model
-	TripID  int     `json:"trip_id"`
-	Title   string  `json:"title"`
-	Content string  `json:"content"`
-	Km      float64 `json:"km"`
-	//Date            string  `json:date`
+	TripID   int       `json:"trip_id"`
+	Title    string    `json:"title"`
+	Content  string    `json:"content"`
+	WithBike bool      `json:"with_bike"`
+	Km       float64   `json:"km"`
+	Date     time.Time `json:"date"`
 }
 
 // GetTrips --
@@ -64,12 +66,18 @@ func DeleteTripByID(id int) (bool, error) {
 }
 
 // CreateNewTrip trip with all users
-func CreateNewTrip(title, content, kilometersCount string) (*Trip, error) {
+func CreateNewTrip(title, content, kilometersCount, withbike string) (*Trip, error) {
 	kmc, err := strconv.ParseFloat(kilometersCount, 64)
 	if err != nil {
-		return nil, nil
+		return nil, err
 	}
-	newTrip := Trip{Title: title, Content: content, Km: kmc}
+
+	wb, err := strconv.ParseBool(withbike)
+	if err != nil {
+		return nil, err
+	}
+
+	newTrip := Trip{Title: title, Content: content, Km: kmc, WithBike: wb}
 
 	// TODO: New database record  with $newTrip
 	result := db.Create(&newTrip) // pass pointer of data to Create
