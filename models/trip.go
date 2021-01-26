@@ -10,11 +10,11 @@ import (
 // Trip model
 type Trip struct {
 	Model
-	TripID          int     `json:"id"`
-	Title           string  `json:"title"`
-	Content         string  `json:"content"`
-	KilometersCount float64 `json:"kmc"`
-	Date            string  `json:date`
+	TripID  int     `json:"trip_id"`
+	Title   string  `json:"title"`
+	Content string  `json:"content"`
+	Km      float64 `json:"km"`
+	//Date            string  `json:date`
 }
 
 // GetTrips --
@@ -30,14 +30,17 @@ func GetTrips() []Trip {
 
 // GetTripByID --
 // Return trip given id
-func GetTripByID(id int) (Trip, error) {
+func GetTripByID(id int) (*Trip, error) {
 	var trip Trip
-	result := db.First(&trip, id)
-	if result.Error != nil {
-		return Trip{}, result.Error
+	err := db.Select("trip_id").Where("trip_id = ? AND deleted_on = ? ", id, 0).First(&trip).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return nil, err
 	}
-	return trip, nil
 
+	if trip.TripID >= 0 {
+		return &trip, nil
+	}
+	return nil, nil
 }
 
 // ExistTripByID --
@@ -66,7 +69,7 @@ func CreateNewTrip(title, content, kilometersCount string) (*Trip, error) {
 	if err != nil {
 		return nil, nil
 	}
-	newTrip := Trip{Title: title, Content: content, KilometersCount: kmc}
+	newTrip := Trip{Title: title, Content: content, Km: kmc}
 
 	// TODO: New database record  with $newTrip
 	result := db.Create(&newTrip) // pass pointer of data to Create

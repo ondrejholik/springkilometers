@@ -15,7 +15,7 @@ import (
 // User --
 type User struct {
 	gorm.Model
-	UserID   int    `"json:"userid`
+	UserID   int    `json:"userid"`
 	Username string `json:"username"`
 	Password string `json:"-"`
 	Salt     string `json:"-"`
