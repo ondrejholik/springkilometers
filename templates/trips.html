@@ -3,17 +3,36 @@
 <!--Embed the header.html template at this location-->
 {{ template "header.html" .}}
 
-  <!--Loop over the `payload` variable, which is the list of articles-->
-  {{range .payload }}
-    <!--Create the link for the article based on its ID-->
-    <a href="/trip/view/{{.ID}}">
-      <!--Display the title of the article -->
-      <h2>{{.Name}}</h2>
-    </a>
-    <!--Display the content of the article-->
-    <p>{{.Content}}</p>
-    <p>{{.Km}}</p>
-  {{end}}
+<div class="column is-5 is-offset-4" >
+ 
+ {{range .payload }}
+<div class="card mb-4">
+  <div class="card-image">
+    <figure class="image is-4by3">
+      <img src="https://bulma.io/images/placeholders/1280x960.png" alt="Placeholder image">
+    </figure>
+  </div>
+  <div class="card-content">
+    <div class="media">
+      <div class="media-left">
+        <figure class="image is-48x48">
+          <img src="https://bulma.io/images/placeholders/96x96.png" alt="Placeholder image">
+        </figure>
+      </div>
+      <div class="media-content">
+        <a href="/trip/view/{{.ID}}" class="title is-4">{{.Name}}</p>
+      </div>
+    </div>
 
-<!--Embed the footer.html template at this location-->
+    <div class="content">
+      {{.Content}}
+      <span class="tag is-primary">{{.Km}}</span>
+      <br>
+      <time datetime="2016-1-1">11:09 PM - 1 Jan 2016</time>
+    </div>
+  </div>
+</div>
+{{end}}
+</div>
+
 {{ template "footer.html" .}}
