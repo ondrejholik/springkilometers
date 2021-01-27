@@ -3,18 +3,22 @@ package springkilometers
 import (
 	"log"
 	"strconv"
+	"time"
 
 	"gorm.io/gorm"
 )
 
 // Trip model
 type Trip struct {
-	Model
-	TripID  int     `json:"trip_id"`
-	Title   string  `json:"title"`
-	Content string  `json:"content"`
-	Km      float64 `json:"km"`
-	//Date            string  `json:date`
+	ID         int       `json:"id"`
+	Name       string    `json:"name"`
+	Content    string    `json:"content"`
+	WithBike   bool      `json:"with_bike"`
+	Km         float64   `json:"km"`
+	CreatedOn  time.Time `json:"created_on"`
+	DeletedOn  time.Time `json:"deleted_on"`
+	ModifiedOn time.Time `json:"modified_on"`
+	UpdatedOn  time.Time `json:"updated_on"`
 }
 
 // GetTrips --
@@ -32,12 +36,12 @@ func GetTrips() []Trip {
 // Return trip given id
 func GetTripByID(id int) (*Trip, error) {
 	var trip Trip
-	err := db.Select("trip_id").Where("trip_id = ? AND deleted_on = ? ", id, 0).First(&trip).Error
+	err := db.Select("*").Where("id = ? ", id).First(&trip).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		return nil, err
 	}
 
-	if trip.TripID >= 0 {
+	if trip.ID >= 0 {
 		return &trip, nil
 	}
 	return nil, nil
@@ -46,12 +50,12 @@ func GetTripByID(id int) (*Trip, error) {
 // ExistTripByID --
 func ExistTripByID(id int) (bool, error) {
 	var trip Trip
-	err := db.Select("trip_id").Where("trip_id = ? AND deleted_on = ? ", id, 0).First(&trip).Error
+	err := db.Select("id").Where("id = ?", id).First(&trip).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		return false, err
 	}
 
-	if trip.TripID > 0 {
+	if trip.ID >= 0 {
 		return true, nil
 	}
 	return false, nil
@@ -64,17 +68,21 @@ func DeleteTripByID(id int) (bool, error) {
 }
 
 // CreateNewTrip trip with all users
-func CreateNewTrip(title, content, kilometersCount string) (*Trip, error) {
+func CreateNewTrip(name, content, kilometersCount, withbike string) (*Trip, error) {
 	kmc, err := strconv.ParseFloat(kilometersCount, 64)
 	if err != nil {
-		return nil, nil
+		log.Println(err)
+		return nil, err
 	}
-	newTrip := Trip{Title: title, Content: content, Km: kmc}
+
+	wb := withbike == "withbike"
+
+	newTrip := Trip{Name: name, Content: content, Km: kmc, WithBike: wb}
 
 	// TODO: New database record  with $newTrip
 	result := db.Create(&newTrip) // pass pointer of data to Create
 	if result.Error != nil {
-		log.Panic(result.Error)
+		log.Println(result.Error)
 		return nil, result.Error
 	}
 	return &newTrip, nil

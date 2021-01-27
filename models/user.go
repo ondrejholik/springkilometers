@@ -3,22 +3,26 @@
 package springkilometers
 
 import (
+	"encoding/hex"
 	"errors"
+	"log"
 	"math/rand"
 	"strings"
 	"time"
 
 	"golang.org/x/crypto/sha3"
-	"gorm.io/gorm"
 )
 
 // User --
 type User struct {
-	gorm.Model
-	UserID   int    `json:"userid"`
-	Username string `json:"username"`
-	Password string `json:"-"`
-	Salt     string `json:"-"`
+	ID         int       `json:"id"`
+	Username   string    `json:"username"`
+	Password   string    `json:"password"`
+	Salt       string    `json:"salt"`
+	CreatedOn  time.Time `json:"created_on"`
+	DeletedOn  time.Time `json:"deleted_on"`
+	ModifiedOn time.Time `json:"modified_on"`
+	UpdatedOn  time.Time `json:"updated_on"`
 }
 
 // random salt with given length
@@ -37,7 +41,7 @@ func crypting(s string) string {
 	h := sha3.New512()
 	h.Write([]byte(s))
 	pass := h.Sum(nil)
-	return string(pass)
+	return hex.EncodeToString(pass)
 }
 
 // IsUserValid --
@@ -48,26 +52,22 @@ func IsUserValid(username, password string) bool {
 		return false
 	}
 
-	// TODO: Get salt, hashed password from existing user
-	// SQL: SELECT users.password, users.salt FROM users WHERE users.username = $username -> salt, cryptpass
-	cryptpass := "tmp"
-	dbsalt := "tmp"
+	var user User
+	db.Where("username = ?", username).First(&user)
 
-	// TODO: hash function + salt to input password
-	pass := crypting(password + dbsalt)
+	var pass string = crypting(password + user.Salt)
+	log.Println(pass == user.Password)
 
-	// TODO: compare username, password(hashed) with input
-
-	return pass == cryptpass
+	return pass == user.Password
 }
 
 // RegisterNewUser a new user with the given username and password
-func RegisterNewUser(username, password string) (*User, error) {
+func RegisterNewUser(username, password string) error {
 	var user User
 	if strings.TrimSpace(password) == "" {
-		return nil, errors.New("The password can't be empty")
+		return errors.New("The password can't be empty")
 	} else if !isUsernameAvailable(username) {
-		return nil, errors.New("The username isn't available")
+		return errors.New("The username isn't available")
 	}
 
 	salt := salting(10)
@@ -76,19 +76,21 @@ func RegisterNewUser(username, password string) (*User, error) {
 	user = User{Username: username, Password: pass, Salt: salt}
 	result := db.Create(&user) // pass pointer of data to Create
 	if result.Error != nil {
-		return nil, result.Error
+		return result.Error
 	}
 
-	return &user, nil
+	return nil
 }
 
 // Check if the supplied username is available
 func isUsernameAvailable(username string) bool {
-	var user User
-	db.Where("name = ?", username).First(&user)
-	if user.UserID > 0 {
+	var count int64 = 0
+	err := db.Table("users").Where("username = ?", username).Count(&count)
+	if err != nil {
+		log.Println(err)
+	}
+	if count > 0 {
 		return false
 	}
-
 	return true
 }
