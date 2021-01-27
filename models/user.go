@@ -5,6 +5,7 @@ package springkilometers
 import (
 	"encoding/hex"
 	"errors"
+	"log"
 	"math/rand"
 	"strings"
 	"time"
@@ -14,11 +15,14 @@ import (
 
 // User --
 type User struct {
-	//Model
-	UserID   int    `json:"user_id"`
-	Username string `json:"username"`
-	Password string `json:"-"`
-	Salt     string `json:"-"`
+	ID         int       `json:"id"`
+	Username   string    `json:"username"`
+	Password   string    `json:"password"`
+	Salt       string    `json:"salt"`
+	CreatedOn  time.Time `json:"created_on"`
+	DeletedOn  time.Time `json:"deleted_on"`
+	ModifiedOn time.Time `json:"modified_on"`
+	UpdatedOn  time.Time `json:"updated_on"`
 }
 
 // random salt with given length
@@ -48,17 +52,13 @@ func IsUserValid(username, password string) bool {
 		return false
 	}
 
-	// TODO: Get salt, hashed password from existing user
-	// SQL: SELECT users.password, users.salt FROM users WHERE users.username = $username -> salt, cryptpass
-	cryptpass := "tmp"
-	dbsalt := "tmp"
+	var user User
+	db.Where("username = ?", username).First(&user)
 
-	// TODO: hash function + salt to input password
-	pass := crypting(password + dbsalt)
+	var pass string = crypting(password + user.Salt)
+	log.Println(pass == user.Password)
 
-	// TODO: compare username, password(hashed) with input
-
-	return pass == cryptpass
+	return pass == user.Password
 }
 
 // RegisterNewUser a new user with the given username and password
@@ -84,11 +84,13 @@ func RegisterNewUser(username, password string) error {
 
 // Check if the supplied username is available
 func isUsernameAvailable(username string) bool {
-	var user User
-	db.Where("username = ?", username).First(&user)
-	if user.UserID > 0 {
+	var count int64 = 0
+	err := db.Table("users").Where("username = ?", username).Count(&count)
+	if err != nil {
+		log.Println(err)
+	}
+	if count > 0 {
 		return false
 	}
-
 	return true
 }
