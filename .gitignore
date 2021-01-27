@@ -31,5 +31,6 @@ debug
 
 go.sum
 springkilometers
+postgres_data/
 
 
