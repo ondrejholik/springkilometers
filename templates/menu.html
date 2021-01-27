@@ -1,31 +1,41 @@
 <!--menu.html-->
 
-<nav class="navbar navbar-default">
-  <div class="container">
-    <div class="navbar-header">
-      <a class="navbar-brand" href="/">
+  <div id="navbarBasicExample" class="navbar-menu">
+    <div class="navbar-start">
+      <a class="navbar-item" href="/">
         Home
       </a>
+
+      <a class="navbar-item" href="/trip/all">
+        Trips
+      </a>
+
+      {{ if .is_logged_in }}
+      <a class="navbar-item" href="/trip/create">
+        Create Trip
+      </a>
+      {{end}}
     </div>
-    <ul class="nav navbar-nav">
-        <!--Display this link only when the user is logged in-->
-        <li><a href="/trip/all">All trips</a></li>
-      {{ if .is_logged_in }}
-        <!--Display this link only when the user is logged in-->
-        <li><a href="/trip/create">Create Trip</a></li>
-      {{end}}
-      {{ if not .is_logged_in }}
-        <!--Display this link only when the user is not logged in-->
-        <li><a href="/u/register">Register</a></li>
-      {{end}} 
-      {{ if not .is_logged_in }}
-        <!--Display this link only when the user is not logged in-->
-        <li><a href="/u/login">Login</a></li>
-      {{end}} 
-      {{ if .is_logged_in }}
-        <!--Display this link only when the user is logged in-->
-        <li><a href="/u/logout">Logout</a></li>
-      {{end}}
-    </ul>
+
+
+    <div class="navbar-end">
+      <div class="navbar-item">
+        <div class="buttons">
+          {{ if not .is_logged_in}}
+          <a class="button is-primary" href="/u/register">
+            <strong>Sign up</strong>
+          </a>
+          <a class="button is-light" href="/u/login">
+            Log in
+          </a>
+          {{end}}
+          {{if .is_logged_in}}
+          <a class="button is-primary" href="/u/logout">
+            Log out
+          </a>
+          {{end}}
+        </div>
+      </div>
+    </div>
   </div>
 </nav>
