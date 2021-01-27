@@ -3,31 +3,49 @@
 <!--Embed the header.html template at this location-->
 {{ template "header.html" .}}
 
-<h1>Login</h1>
-
-
-<div class="panel panel-default col-sm-6">
-  <div class="panel-body">
-    <!--If there's an error, display the error-->
-    {{ if .ErrorTitle}}
-    <p class="bg-danger">
-      {{.ErrorTitle}}: {{.ErrorMessage}}
-    </p>
-    {{end}}
-    <!--Create a form that POSTs to the `/u/login` route-->
-    <form class="form" action="/u/login" method="POST">
-      <div class="form-group">
-        <label for="username">Username</label>
-        <input type="text" class="form-control" id="username" name="username" placeholder="Username">
-      </div>
-      <div class="form-group">
-        <label for="password">Password</label>
-        <input type="password" class="form-control" id="password" name="password" placeholder="Password">
-      </div>
-      <button type="submit" class="btn btn-primary">Login</button>
-    </form>
+{{ if .ErrorTitle}}
+<article class="message is-danger">
+  <div class="message-header">
+    <p>{{.ErrorTitle}}</p>
+    <button class="delete" aria-label="delete"></button>
   </div>
-</div>  
+  <div class="message-body">
+    {{.ErrorMessage}}
+  </div>
+</article>
+{{end}}
+<section class="hero is-fullheight column is-8 is-offset-4">
+  <!--If there's an error, display the error-->
+  <div class="hero-body has-text-centered">
+        <div class="card pl-2 pr-2 pb-2">
+          <img src="https://logoipsum.com/logo/logo-1.svg" width="325px" />
+          <form action="/u/login" method="POST">
+            <div class="field">
+              <div class="control">
+                <input class="input is-medium is-rounded" name="username" type="text" placeholder="holikon1"  required />
+              </div>
+            </div>
+            <div class="field">
+              <div class="control">
+                <input class="input is-medium is-rounded" name="password" type="password" placeholder="**********"  required />
+              </div>
+            </div>
+            <br />
+            <button class="button is-block is-fullwidth is-primary is-medium is-rounded" type="submit">
+              Login
+            </button>
+          </form>
+          <br>
+          <nav class="level">
+            <div class="level-item has-text-centered">
+              <div>
+                <a href="/u/register">Create an Account</a>
+              </div>
+            </div>
+          </nav>
+        </div>
+      </div>
+    </section>
 
 
 <!--Embed the footer.html template at this location-->
