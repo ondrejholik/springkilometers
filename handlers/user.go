@@ -3,6 +3,7 @@
 package springkilometers
 
 import (
+	"log"
 	"math/rand"
 	"net/http"
 	"strconv"
@@ -24,6 +25,26 @@ func ShowLoginPage(c *gin.Context) {
 	Render(c, gin.H{
 		"title": "Login",
 	}, "login.html")
+}
+
+// JoinTrip --
+func JoinTrip(c *gin.Context) {
+	// Check if the article ID is valid
+	if tripID, err := strconv.Atoi(c.Param("id")); err == nil {
+		// Check if the article exists
+		if trip, err := models.GetTripByID(tripID); err == nil {
+
+		} else {
+			// If the article is not found, abort with an error
+			c.AbortWithError(http.StatusNotFound, err)
+			log.Println(err)
+		}
+
+	} else {
+		// If an invalid article ID is specified in the URL, abort with an error
+		c.AbortWithStatus(http.StatusNotFound)
+		log.Println(err)
+	}
 }
 
 // PerformLogin --

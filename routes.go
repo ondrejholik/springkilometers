@@ -47,6 +47,7 @@ func initializeRoutes() {
 		tripRoutes.GET("/view/:id", handlers.GetTrip)
 		tripRoutes.GET("/all", handlers.ShowTripsPage)
 		tripRoutes.GET("/create", mid.EnsureLoggedIn(), handlers.ShowTripCreationPage)
+		tripRoutes.POST("/join/:id", mid.EnsureLoggedIn(), handlers.JoinTrip)
 		tripRoutes.POST("/create", mid.EnsureLoggedIn(), handlers.CreateTrip)
 	}
 
