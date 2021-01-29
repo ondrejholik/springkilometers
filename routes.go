@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/gin-gonic/contrib/sessions"
 	handlers "github.com/ondrejholik/springkilometers/handlers"
 	mid "github.com/ondrejholik/springkilometers/middleware"
 )
@@ -10,6 +11,7 @@ func initializeRoutes() {
 	// Use the setUserStatus middleware for every route to set a flag
 	// indicating whether the request was from an authenticated user or not
 	router.Use(mid.SetUserStatus())
+	router.Use(sessions.Sessions("mysession", sessions.NewCookieStore([]byte("secret"))))
 
 	// Use db in context
 

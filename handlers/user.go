@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/gin-gonic/contrib/sessions"
 	"github.com/gin-gonic/gin"
 	models "github.com/ondrejholik/springkilometers/models"
 )
@@ -29,14 +30,41 @@ func ShowLoginPage(c *gin.Context) {
 
 // JoinTrip --
 func JoinTrip(c *gin.Context) {
+	session := sessions.Default(c)
 	// Check if the article ID is valid
 	if tripID, err := strconv.Atoi(c.Param("id")); err == nil {
 		// Check if the article exists
 		if trip, err := models.GetTripByID(tripID); err == nil {
-			currentUser := c.GetString("currentUser")
+			currentUser := session.Get("current_user")
+			log.Println(currentUser)
 
-			models.UserJoinsTrip(currentUser, *trip)
-			models.TripJoinsUser(currentUser, *trip)
+			models.UserJoinsTrip(currentUser.(string), *trip)
+			models.TripJoinsUser(currentUser.(string), *trip)
+		} else {
+			// If the article is not found, abort with an error
+			c.AbortWithError(http.StatusNotFound, err)
+			log.Println(err)
+		}
+
+	} else {
+		// If an invalid article ID is specified in the URL, abort with an error
+		c.AbortWithStatus(http.StatusNotFound)
+		log.Println(err)
+	}
+}
+
+// DisjoinTrip --
+func DisjoinTrip(c *gin.Context) {
+	session := sessions.Default(c)
+	// Check if the article ID is valid
+	if tripID, err := strconv.Atoi(c.Param("id")); err == nil {
+		// Check if the article exists
+		if trip, err := models.GetTripByID(tripID); err == nil {
+			currentUser := session.Get("current_user")
+			log.Println(currentUser)
+
+			models.UserDisjoinsTrip(currentUser.(string), *trip)
+			models.TripDisjoinsUser(currentUser.(string), *trip)
 		} else {
 			// If the article is not found, abort with an error
 			c.AbortWithError(http.StatusNotFound, err)
@@ -55,6 +83,7 @@ func PerformLogin(c *gin.Context) {
 	// Obtain the POSTed username and password values
 	username := c.PostForm("username")
 	password := c.PostForm("password")
+	session := sessions.Default(c)
 
 	// Check if the username/password combination is valid
 
@@ -63,7 +92,9 @@ func PerformLogin(c *gin.Context) {
 		token := GenerateSessionToken()
 		c.SetCookie("token", token, 3600, "", "", false, true)
 		c.Set("is_logged_in", true)
-		c.Set("currentUser", username)
+		session.Set("current_user", username)
+		session.Save()
+		log.Println("settin:", username)
 
 		Render(c, gin.H{
 			"title": "Successful Login"}, "login-successful.html")
@@ -107,13 +138,16 @@ func Register(c *gin.Context) {
 	// Obtain the POSTed username and password values
 	username := c.PostForm("username")
 	password := c.PostForm("password")
+	session := sessions.Default(c)
 
 	if err := models.RegisterNewUser(username, password); err == nil {
 		// If the user is created, set the token in a cookie and log the user in
 		token := GenerateSessionToken()
 		c.SetCookie("token", token, 3600, "", "", false, true)
 		c.Set("is_logged_in", true)
-		c.Set("currentUser", username)
+		session.Set("current_user", username)
+		session.Save()
+		log.Println("settin:", username)
 
 		Render(c, gin.H{
 			"title": "Successful registration & Login"}, "login-successful.html")

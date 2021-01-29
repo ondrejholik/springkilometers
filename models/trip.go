@@ -63,8 +63,17 @@ func ExistTripByID(id int) (bool, error) {
 }
 
 // TripJoinsUser --
-func TripJoinsUser(username string, trip Trip) error {
+func TripJoinsUser(username string, trip Trip) {
+	var user User
+	db.Where("username = ?", username).First(&user)
+	db.Model(&trip).Association("Users").Append(&user)
+}
 
+// TripDisjoinsUser --
+func TripDisjoinsUser(username string, trip Trip) {
+	var user User
+	db.Where("username = ?", username).First(&user)
+	db.Model(&trip).Association("Users").Delete(&user)
 }
 
 // DeleteTripByID --

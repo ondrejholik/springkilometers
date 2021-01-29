@@ -18,7 +18,7 @@ type User struct {
 	ID         int       `json:"id"`
 	Username   string    `json:"username"`
 	Password   string    `json:"password"`
-	Salt       string    `json:"salt"`
+	Salt       string    `json:"salt"	`
 	CreatedOn  time.Time `json:"created_on"`
 	DeletedOn  time.Time `json:"deleted_on"`
 	ModifiedOn time.Time `json:"modified_on"`
@@ -67,6 +67,13 @@ func UserJoinsTrip(username string, trip Trip) {
 	var user User
 	db.Where("username = ?", username).First(&user)
 	db.Model(&user).Association("Trips").Append(&trip)
+}
+
+// UserDisjoinsTrip --
+func UserDisjoinsTrip(username string, trip Trip) {
+	var user User
+	db.Where("username = ?", username).First(&user)
+	db.Model(&user).Association("Trips").Delete(&trip)
 }
 
 // RegisterNewUser a new user with the given username and password
