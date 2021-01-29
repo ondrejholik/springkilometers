@@ -62,6 +62,20 @@ func ExistTripByID(id int) (bool, error) {
 	return false, nil
 }
 
+// TripJoinsUser --
+func TripJoinsUser(username string, trip Trip) {
+	var user User
+	db.Where("username = ?", username).First(&user)
+	db.Model(&trip).Association("Users").Append(&user)
+}
+
+// TripDisjoinsUser --
+func TripDisjoinsUser(username string, trip Trip) {
+	var user User
+	db.Where("username = ?", username).First(&user)
+	db.Model(&trip).Association("Users").Delete(&user)
+}
+
 // DeleteTripByID --
 func DeleteTripByID(id int) (bool, error) {
 	db.Delete(&Trip{}, id)
@@ -69,7 +83,7 @@ func DeleteTripByID(id int) (bool, error) {
 }
 
 // CreateNewTrip trip with all users
-func CreateNewTrip(name, content, kilometersCount, withbike string) (*Trip, error) {
+func CreateNewTrip(username, name, content, kilometersCount, withbike string) (*Trip, error) {
 	kmc, err := strconv.ParseFloat(kilometersCount, 64)
 	if err != nil {
 		log.Println(err)
@@ -80,15 +94,16 @@ func CreateNewTrip(name, content, kilometersCount, withbike string) (*Trip, erro
 
 	newTrip := Trip{Name: name, Content: content, Km: kmc, WithBike: wb}
 
-	// TODO: New database record  with $newTrip
 	result := db.Create(&newTrip) // pass pointer of data to Create
 	if result.Error != nil {
 		log.Println(result.Error)
 		return nil, result.Error
 	}
-	return &newTrip, nil
 
-	// TODO: Each user who append in createNewTrip add to trip_user. With values trip_id, user_id.
+	// User, who created trip also "join" trip
+	TripJoinsUser(username, newTrip)
+
+	return &newTrip, nil
 }
 
 // UpdateTrip --

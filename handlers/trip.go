@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/gin-gonic/contrib/sessions"
 	"github.com/gin-gonic/gin"
 	models "github.com/ondrejholik/springkilometers/models"
 )
@@ -57,11 +58,13 @@ func CreateTrip(c *gin.Context) {
 	// Obtain the POSTed title and content values
 	name := c.PostForm("name")
 	content := c.PostForm("content")
-	kilometersCount := c.PostForm("kmc")
+	kilometersCount := c.PostForm("km")
 	withbike := c.PostForm("withbike")
-	//users := c.PostForm("users")
 
-	if a, err := models.CreateNewTrip(name, content, kilometersCount, withbike); err == nil {
+	session := sessions.Default(c)
+	username := session.Get("current_user")
+
+	if a, err := models.CreateNewTrip(username.(string), name, content, kilometersCount, withbike); err == nil {
 		// If the article is created successfully, show success message
 		Render(c, gin.H{
 			"title":   "Submission Successful",
