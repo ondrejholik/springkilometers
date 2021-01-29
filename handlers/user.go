@@ -15,9 +15,10 @@ import (
 
 //ShowIndexPage --
 func ShowIndexPage(c *gin.Context) {
+	result := models.GetUsersScore()
 	Render(c, gin.H{
-		"title": "Index",
-	}, "index.html")
+		"title":   "Index",
+		"payload": result}, "index.html")
 }
 
 // ShowLoginPage --
