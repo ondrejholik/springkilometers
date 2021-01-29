@@ -33,7 +33,10 @@ func JoinTrip(c *gin.Context) {
 	if tripID, err := strconv.Atoi(c.Param("id")); err == nil {
 		// Check if the article exists
 		if trip, err := models.GetTripByID(tripID); err == nil {
+			currentUser := c.GetString("currentUser")
 
+			models.UserJoinsTrip(currentUser, *trip)
+			models.TripJoinsUser(currentUser, *trip)
 		} else {
 			// If the article is not found, abort with an error
 			c.AbortWithError(http.StatusNotFound, err)
@@ -60,6 +63,7 @@ func PerformLogin(c *gin.Context) {
 		token := GenerateSessionToken()
 		c.SetCookie("token", token, 3600, "", "", false, true)
 		c.Set("is_logged_in", true)
+		c.Set("currentUser", username)
 
 		Render(c, gin.H{
 			"title": "Successful Login"}, "login-successful.html")
@@ -109,6 +113,7 @@ func Register(c *gin.Context) {
 		token := GenerateSessionToken()
 		c.SetCookie("token", token, 3600, "", "", false, true)
 		c.Set("is_logged_in", true)
+		c.Set("currentUser", username)
 
 		Render(c, gin.H{
 			"title": "Successful registration & Login"}, "login-successful.html")

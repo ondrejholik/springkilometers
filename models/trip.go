@@ -61,6 +61,11 @@ func ExistTripByID(id int) (bool, error) {
 	return false, nil
 }
 
+// TripJoinsUser --
+func TripJoinsUser(username string, trip Trip) error {
+
+}
+
 // DeleteTripByID --
 func DeleteTripByID(id int) (bool, error) {
 	db.Delete(&Trip{}, id)

@@ -61,6 +61,13 @@ func IsUserValid(username, password string) bool {
 	return pass == user.Password
 }
 
+// UserJoinsTrip --
+func UserJoinsTrip(username string, trip Trip) {
+	var user User
+	db.Where("username = ?", username).First(&user)
+	db.Model(&user).Association("Trips").Append(&trip)
+}
+
 // RegisterNewUser a new user with the given username and password
 func RegisterNewUser(username, password string) error {
 	var user User
