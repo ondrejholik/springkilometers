@@ -19,6 +19,7 @@ type Trip struct {
 	DeletedOn  time.Time `json:"deleted_on"`
 	ModifiedOn time.Time `json:"modified_on"`
 	UpdatedOn  time.Time `json:"updated_on"`
+	Users      []User    `gorm:"many2many:user_trip;"`
 }
 
 // GetTrips --

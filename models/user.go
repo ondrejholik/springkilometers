@@ -23,6 +23,7 @@ type User struct {
 	DeletedOn  time.Time `json:"deleted_on"`
 	ModifiedOn time.Time `json:"modified_on"`
 	UpdatedOn  time.Time `json:"updated_on"`
+	Trips      []Trip    `gorm:"many2many:user_trip;"`
 }
 
 // random salt with given length
