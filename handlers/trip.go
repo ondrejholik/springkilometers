@@ -24,7 +24,7 @@ func ShowTripsPage(c *gin.Context) {
 func ShowTripCreationPage(c *gin.Context) {
 	// Call the render function with the name of the template to render
 	Render(c, gin.H{
-		"title": "Create New Trip"}, "create-trip.html")
+		"title": "Create New Trip"}, "trip-create.html")
 }
 
 // GetTrip --
