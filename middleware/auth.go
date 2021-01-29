@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// EnsureLoggedIn
+// EnsureLoggedIn --
 // This middleware ensures that a request will be aborted with an error
 // if the user is not logged in
 func EnsureLoggedIn() gin.HandlerFunc {
@@ -24,7 +24,7 @@ func EnsureLoggedIn() gin.HandlerFunc {
 	}
 }
 
-// EnsureNotLoggedIn
+// EnsureNotLoggedIn --
 // This middleware ensures that a request will be aborted with an error
 // if the user is already logged in
 func EnsureNotLoggedIn() gin.HandlerFunc {
@@ -46,6 +46,7 @@ func SetUserStatus() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if token, err := c.Cookie("token"); err == nil || token != "" {
 			c.Set("is_logged_in", true)
+			c.Set("current_user", "")
 		} else {
 			c.Set("is_logged_in", false)
 		}
