@@ -110,7 +110,6 @@ func GetTrip(c *gin.Context) {
 		if trip, err := models.GetTripByID(tripID); err == nil {
 			// Call the render function with the title, article and the name of the
 			// template
-			log.Println(trip)
 			Render(c, gin.H{
 				"title":   trip.Name,
 				"payload": trip}, "trip.html")
