@@ -52,6 +52,11 @@ func JoinTrip(c *gin.Context) {
 
 			models.UserJoinsTrip(currentUser.(string), *trip)
 			models.TripJoinsUser(currentUser.(string), *trip)
+
+			Render(c, gin.H{
+				"title":   "Successful joined trip",
+				"payload": trip}, "trip-joined.html")
+
 		} else {
 			// If the article is not found, abort with an error
 			c.AbortWithError(http.StatusNotFound, err)
