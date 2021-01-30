@@ -3,46 +3,28 @@
 <!--Embed the header.html template at this location-->
 {{ template "header.html" .}}
 
-
+<div class=" is-mobile">
 {{range .payload }}
-<div class="box">
+<div class="box column is-three-fifths is-offset-one-fifth">
   <article class="media">
     <div class="media-left">
       <figure class="image is-64x64">
-        <img src="https://bulma.io/images/placeholders/128x128.png" alt="Image">
+        <img class="is-rounded" src="https://bulma.io/images/placeholders/128x128.png" alt="Image">
       </figure>
     </div>
     <div class="media-content">
       <div class="content">
         <p>
-          <strong>{{.Username}}</strong> <small>@johnsmith</small> <small>{{.Km}}</small>
-          <br>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean efficitur sit amet massa fringilla egestas. Nullam condimentum luctus turpis.
+          <a href="/u/view/{{.ID}}"><strong class="title is-5">{{.Username}}</strong></a>
+          <span class="tag is-primary ml-2">{{.Km}}</span>
         </p>
       </div>
-      <nav class="level is-mobile">
-        <div class="level-left">
-          <a class="level-item" aria-label="reply">
-            <span class="icon is-small">
-              <i class="fas fa-reply" aria-hidden="true"></i>
-            </span>
-          </a>
-          <a class="level-item" aria-label="retweet">
-            <span class="icon is-small">
-              <i class="fas fa-retweet" aria-hidden="true"></i>
-            </span>
-          </a>
-          <a class="level-item" aria-label="like">
-            <span class="icon is-small">
-              <i class="fas fa-heart" aria-hidden="true"></i>
-            </span>
-          </a>
-        </div>
-      </nav>
+      <progress class="progress is-success" value="{{.Km}}" max="100">{{.Km}}%</progress>
     </div>
   </article>
 </div>
 {{end}}
+</div>
 
 
 
