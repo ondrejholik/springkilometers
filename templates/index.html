@@ -4,26 +4,32 @@
 {{ template "header.html" .}}
 
 <div class=" is-mobile">
-{{range .payload }}
-<div class="box column is-three-fifths is-offset-one-fifth">
-  <article class="media">
-    <div class="media-left">
-      <figure class="image is-64x64">
-        <img class="is-rounded" src="https://bulma.io/images/placeholders/128x128.png" alt="Image">
-      </figure>
-    </div>
-    <div class="media-content">
-      <div class="content">
-        <p>
-          <a href="/u/view/{{.ID}}"><strong class="title is-5">{{.Username}}</strong></a>
-          <span class="tag is-primary ml-2">{{.Km}}</span>
-        </p>
+  {{range .payload }}
+  <div class="box column is-three-fifths is-offset-one-fifth">
+    <article class="media">
+      <div class="media-left">
+        <figure class="image is-64x64">
+          <img class="is-rounded" src="https://bulma.io/images/placeholders/128x128.png" alt="Image">
+        </figure>
       </div>
-      <progress class="progress is-success" value="{{.Km}}" max="100">{{.Km}}%</progress>
-    </div>
-  </article>
-</div>
-{{end}}
+      <div class="media-content">
+        <div class="content">
+          <div class="level">
+            <div class="level-left ">
+              <a href="/u/view/{{.ID}}"><strong class="title is-5">{{.Username}}</strong></a>
+            </div>
+            <div class="level-right ">
+              <span class="tag is-primary ml-2">{{.Km}}</span>
+              <span class="tag is-danger ml-2">Star</span>
+            </div>
+          </div>
+
+        </div>
+        <progress class="progress is-success" value="{{.Km}}" max="100">{{.Km}}%</progress>
+      </div>
+    </article>
+  </div>
+  {{end}}
 </div>
 
 
