@@ -3,34 +3,34 @@
 <!--Embed the header.html template at this location-->
 {{ template "header.html" .}}
 
-<h1 class="title is-1">Create Trip</h1>
+<h1 class="title is-1">Update Trip</h1>
 
-<form method="POST" action="/trip/create">
+<form method="POST" action="/trip/update/{{.payload.ID}}">
   <div class="field">
     <label class="label">Name</label>
     <div class="control">
-      <input class="input" type="text" name="name" placeholder="Name of the trip">
+      <input class="input" type="text" name="name" value="{{.payload.Name}}">
     </div>
   </div>
 
   <div class="field">
     <label class="label">Content</label>
     <div class="control">
-      <textarea name="content" class="textarea" placeholder="What was your trip about"></textarea>
+      <textarea name="content" class="textarea">{{.payload.Content}}</textarea>
     </div>
   </div>
 
   <div class="field">
     <label class="label">Km</label>
     <div class="control">
-      <input class="input" type="number" min="0" value="0" step="0.1" name="km" placeholder="distance in km ex. 8">
+      <input class="input" type="number" min="0" step="0.1" name="km" value="{{.payload.Km}}">
     </div>
   </div>
 
   <div class="field">
     <div class="control">
       <label class="checkbox">
-        <input type="checkbox" name="withbike">
+        <input type="checkbox" id="withbike" value="on" name="withbike" {{ if .payload.Withbike}} checked {{end}}>
         With 🚴?
       </label>
     </div>

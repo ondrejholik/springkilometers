@@ -1,6 +1,7 @@
 package springkilometers
 
 import (
+	"errors"
 	"log"
 	"strconv"
 	"time"
@@ -12,14 +13,22 @@ import (
 type Trip struct {
 	ID         int       `json:"id"`
 	Name       string    `json:"name"`
+	Withbike   bool      `json:"withbike"`
 	Content    string    `json:"content"`
-	WithBike   bool      `json:"with_bike"`
 	Km         float64   `json:"km"`
 	CreatedOn  time.Time `json:"created_on"`
 	DeletedOn  time.Time `json:"deleted_on"`
 	ModifiedOn time.Time `json:"modified_on"`
 	UpdatedOn  time.Time `json:"updated_on"`
+	Author     string    `json:"author"`
 	Users      []User    `gorm:"many2many:user_trip;"`
+}
+
+// GetUserTrips --
+func GetUserTrips(username string) []Trip {
+	var trips []Trip
+	db.Table("trips").Where("trips.author = ?", username).Scan(&trips)
+	return trips
 }
 
 // GetTrips --
@@ -42,6 +51,8 @@ func GetTripByID(id int) (*Trip, error) {
 		return nil, err
 	}
 
+	log.Println(trip.Name)
+	log.Println(trip.ID)
 	if trip.ID >= 0 {
 		return &trip, nil
 	}
@@ -76,10 +87,10 @@ func TripDisjoinsUser(username string, trip Trip) {
 	db.Model(&trip).Association("Users").Delete(&user)
 }
 
-// DeleteTripByID --
-func DeleteTripByID(id int) (bool, error) {
-	db.Delete(&Trip{}, id)
-	return true, nil
+func tripBelongsToUsername(tripID int, username string) bool {
+	var trip Trip
+	db.Where("id = ?", tripID).First(&trip)
+	return trip.Author == username
 }
 
 // CreateNewTrip trip with all users
@@ -90,9 +101,9 @@ func CreateNewTrip(username, name, content, kilometersCount, withbike string) (*
 		return nil, err
 	}
 
-	wb := withbike == "withbike"
+	wb := withbike == "on"
 
-	newTrip := Trip{Name: name, Content: content, Km: kmc, WithBike: wb}
+	newTrip := Trip{Name: name, Content: content, Km: kmc, Withbike: wb, Author: username}
 
 	result := db.Create(&newTrip) // pass pointer of data to Create
 	if result.Error != nil {
@@ -107,9 +118,36 @@ func CreateNewTrip(username, name, content, kilometersCount, withbike string) (*
 }
 
 // UpdateTrip --
-func UpdateTrip(title, content, kilometersCount string) bool {
-	// TODO: Update all values in trips.
-	// TODO: Delete all users in trip_user with this specific trip_id
-	// TODO: Each user who append in createNewTrip add to trip_user. With values trip_id, user_id.
-	return false
+func UpdateTrip(id int, username, name, content, kilometersCount, withbike string) (*Trip, error) {
+	kmc, err := strconv.ParseFloat(kilometersCount, 64)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+
+	wb := withbike == "on"
+	log.Println("withbike?", wb)
+
+	trip, err := GetTripByID(id)
+	if err != nil {
+		return nil, err
+	}
+	trip.Name = name
+	trip.Content = content
+	trip.Km = kmc
+	trip.Withbike = wb
+
+	if !tripBelongsToUsername(id, username) {
+		err := errors.New("Username does not belong to trip")
+		return nil, err
+	}
+
+	db.Save(&trip)
+	return trip, nil
+}
+
+// DeleteTripByID --
+func DeleteTripByID(id int) (bool, error) {
+	db.Delete(&Trip{}, id)
+	return true, nil
 }

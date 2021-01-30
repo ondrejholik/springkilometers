@@ -14,7 +14,7 @@ CREATE TABLE trips (
   name     text NOT NULL,
   content  text ,
   km       decimal,
-  with_bike bool,
+  withbike bool,
   created_on  date NOT NULL DEFAULT CURRENT_DATE,
   updated_on date NOT NULL DEFAULT CURRENT_DATE,
   modified_on date NOT NULL DEFAULT CURRENT_DATE,

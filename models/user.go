@@ -37,7 +37,6 @@ type Result struct {
 func GetUsersScore() []Result {
 	var result []Result
 	db.Table("users").Select("users.id, users.username, SUM(trips.km) as km").Joins("JOIN user_trip ON users.id = user_trip.user_id").Joins("JOIN trips ON user_trip.trip_id = trips.id").Group("users.id, users.username").Order("km desc").Scan(&result)
-	log.Println(result)
 	return result
 }
 

@@ -29,6 +29,17 @@ func ShowLoginPage(c *gin.Context) {
 	}, "login.html")
 }
 
+// MyTrips --
+func MyTrips(c *gin.Context) {
+	session := sessions.Default(c)
+	currentUser := session.Get("current_user")
+	result := models.GetUserTrips(currentUser.(string))
+	Render(c, gin.H{
+		"title":   "My trips",
+		"payload": result}, "user-trips.html")
+
+}
+
 // JoinTrip --
 func JoinTrip(c *gin.Context) {
 	session := sessions.Default(c)

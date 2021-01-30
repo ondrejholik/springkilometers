@@ -1,0 +1,54 @@
+<!--index.html-->
+
+<!--Embed the header.html template at this location-->
+{{ template "header.html" .}}
+
+<div class=" is-mobile">
+  {{range .payload }}
+  <div class="box column is-three-fifths is-offset-one-fifth">
+    <article class="media">
+      <div class="media-left">
+        <figure class="image is-64x64">
+          <img class="is-rounded" src="https://bulma.io/images/placeholders/128x128.png" alt="Image">
+        </figure>
+        <div class="level-left mt-1">
+          <span class="tag is-primary is-normal is-rounded ml-1">{{.Km}}</span>
+          {{if .Withbike}}
+          <span class="tag is-info is-normal is-rounded ml-1"><i class="fas fa-bicycle"></i></span>
+          {{end}}
+        </div>
+      </div>
+      <div class="media-content">
+        <div class="level">
+
+        </div>
+        <div class="content">
+
+          <div class="level">
+            <div class="level-left">
+
+              <a href="/trip/view/{{.ID}}"><strong class="title is-5">{{.Name}}</strong></a>
+            </div>
+            <div class="level-right ">
+              <form action="/trip/update/{{.ID}}" method="GET">
+                <button type="submit" class="button is-info is-light is-small ml-2"><i class="fas fa-edit"></i></button>
+              </form>
+              <form action="/trip/delete/{{.ID}}" method="POST">
+                <button type="submit" class="button is-danger is-light is-small ml-2"><i
+                    class="fas fa-trash"></i></button>
+              </form>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </article>
+  </div>
+  {{end}}
+</div>
+
+
+
+
+<!--Embed the footer.html template at this location-->
+{{ template "footer.html" .}}

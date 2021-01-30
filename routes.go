@@ -42,15 +42,24 @@ func initializeRoutes() {
 		// Handle POST requests at /u/register
 		// Ensure that the user is not logged in by using the middleware
 		userRoutes.POST("/register", mid.EnsureNotLoggedIn(), handlers.Register)
+
+		userRoutes.GET("/trips", mid.EnsureLoggedIn(), handlers.MyTrips)
+
+		//userRoutes.GET("/view/:id", handlers.GetUser)
 	}
 
 	tripRoutes := router.Group("/trip")
 	{
-		tripRoutes.GET("/view/:id", handlers.GetTrip)
 		tripRoutes.GET("/all", handlers.ShowTripsPage)
 		tripRoutes.GET("/create", mid.EnsureLoggedIn(), handlers.ShowTripCreationPage)
-		tripRoutes.POST("/join/:id", mid.EnsureLoggedIn(), handlers.JoinTrip)
+		tripRoutes.GET("/join/:id", handlers.GetTrip)
+		tripRoutes.GET("/update/:id", mid.EnsureLoggedIn(), handlers.ShowTripUpdatePage)
+		tripRoutes.GET("/view/:id", handlers.GetTrip)
+
 		tripRoutes.POST("/create", mid.EnsureLoggedIn(), handlers.CreateTrip)
+		tripRoutes.POST("/delete/:id", mid.EnsureLoggedIn(), handlers.DeleteTrip)
+		tripRoutes.POST("/join/:id", mid.EnsureLoggedIn(), handlers.JoinTrip)
+		tripRoutes.POST("/update/:id", mid.EnsureLoggedIn(), handlers.UpdateTrip)
 	}
 
 }
