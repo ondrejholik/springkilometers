@@ -74,6 +74,20 @@ func DeleteTrip(c *gin.Context) {
 	}
 }
 
+func getImageName(filename string) string {
+	name := "trip"
+	// Random part
+	rand.Seed(time.Now().UnixNano())
+	rnd := rand.Int()
+	// Hash file name
+	// we dont care about security here, it is just an image which can be accessed by everybody
+	h := sha1.New()
+	h.Write([]byte(filename))
+	bs := h.Sum(nil)
+
+	return fmt.Sprintf("%s_%d%x", name, rnd, bs)
+}
+
 // UpdateTrip --
 func UpdateTrip(c *gin.Context) {
 
