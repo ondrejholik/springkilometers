@@ -190,9 +190,8 @@ func CreateTrip(c *gin.Context) {
 
 	if newtrip, err = models.CreateNewTrip(username.(string), name, content, kilometersCount, withbike); err == nil {
 		// If the article is created successfully, show success message
-		Render(c, gin.H{
-			"title":   "Submission Successful",
-			"payload": newtrip}, "trip-successful.html")
+		MyTripsSuccess(c)
+
 	} else {
 		// if there was an error while creating the article, abort with an error
 		c.AbortWithStatus(http.StatusBadRequest)
