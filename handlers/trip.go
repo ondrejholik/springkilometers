@@ -1,13 +1,27 @@
 package springkilometers
 
 import (
+	"bytes"
+	"crypto/sha1"
+	"fmt"
+	"image"
+	"image/jpeg"
+	"image/png"
+	"io/ioutil"
 	"log"
+	"math/rand"
+	"mime/multipart"
 	"net/http"
+	"os"
 	"strconv"
+	"time"
+	"unicode/utf8"
 
 	"github.com/gin-gonic/contrib/sessions"
 	"github.com/gin-gonic/gin"
+	"github.com/nfnt/resize"
 	models "github.com/ondrejholik/springkilometers/models"
+	"golang.org/x/image/webp"
 )
 
 // ShowTripsPage --
@@ -145,6 +159,8 @@ func GetTrip(c *gin.Context) {
 func CreateTrip(c *gin.Context) {
 	// Obtain the POSTed title and content values
 
+	var newtrip *models.Trip
+	var err error
 	name := c.PostForm("name")
 	content := c.PostForm("content")
 	kilometersCount := c.PostForm("km")
@@ -172,13 +188,117 @@ func CreateTrip(c *gin.Context) {
 	session := sessions.Default(c)
 	username := session.Get("current_user")
 
-	if a, err := models.CreateNewTrip(username.(string), name, content, kilometersCount, withbike); err == nil {
+	if newtrip, err = models.CreateNewTrip(username.(string), name, content, kilometersCount, withbike); err == nil {
 		// If the article is created successfully, show success message
 		Render(c, gin.H{
 			"title":   "Submission Successful",
-			"payload": a}, "trip-successful.html")
+			"payload": newtrip}, "trip-successful.html")
 	} else {
 		// if there was an error while creating the article, abort with an error
 		c.AbortWithStatus(http.StatusBadRequest)
 	}
+
+	// Begin compression of image on background
+	go compression(*newtrip, file, filename, filetype)
+}
+
+func trimFirstRune(s string) string {
+	_, i := utf8.DecodeRuneInString(s)
+	return s[i:]
+}
+
+func compression(trip models.Trip, file multipart.File, filename, filetype string) {
+	var image image.Image
+	var err error
+	if filetype == "image/png" {
+		image, err = png.Decode(file)
+		if err != nil {
+			log.Panic(err)
+		}
+	} else if filetype == "image/jpeg" {
+		image, err = jpeg.Decode(file)
+		if err != nil {
+			log.Panic(err)
+		}
+	} else {
+		image, err = webp.Decode(file)
+		if err != nil {
+			log.Panic(err)
+		}
+	}
+
+	// Put new paths to Trip struct
+	trip.Tiny = fmt.Sprintf("./static/tiny_%s.jpg", filename)
+	trip.Small = fmt.Sprintf("./static/small_%s.jpg", filename)
+	trip.Medium = fmt.Sprintf("./static/medium_%s.jpg", filename)
+	trip.Large = fmt.Sprintf("./static/large_%s.jpg", filename)
+
+	// Resize image to
+	// Tiny 	->    80x 60
+	tiny := resize.Resize(80, 60, image, resize.Lanczos3)
+
+	// Small 	->	 160x120
+	small := resize.Resize(160, 120, image, resize.Lanczos3)
+
+	// Medium 	-> 	 640x480
+	medium := resize.Resize(640, 480, image, resize.Lanczos3)
+
+	// Large 	-> 	1024x768
+	large := resize.Resize(1024, 768, image, resize.Lanczos3)
+
+	tinyfile, err := os.Create(trip.Tiny)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer tinyfile.Close()
+
+	smallfile, err := os.Create(trip.Small)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer smallfile.Close()
+
+	mediumfile, err := os.Create(trip.Medium)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer mediumfile.Close()
+
+	largefile, err := os.Create(trip.Large)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer largefile.Close()
+
+	var buf bytes.Buffer
+	jpeg.Encode(&buf, tiny, nil)
+	if err = ioutil.WriteFile(trip.Tiny, buf.Bytes(), 0666); err != nil {
+		log.Println(err)
+	}
+
+	buf.Reset()
+	jpeg.Encode(&buf, small, nil)
+	if err = ioutil.WriteFile(trip.Small, buf.Bytes(), 0666); err != nil {
+		log.Println(err)
+	}
+
+	buf.Reset()
+	jpeg.Encode(&buf, medium, nil)
+	if err = ioutil.WriteFile(trip.Medium, buf.Bytes(), 0666); err != nil {
+		log.Println(err)
+	}
+
+	buf.Reset()
+	jpeg.Encode(&buf, large, nil)
+	if err = ioutil.WriteFile(trip.Large, buf.Bytes(), 0666); err != nil {
+		log.Println(err)
+	}
+
+	trip.Tiny = trimFirstRune((trip.Tiny))
+	trip.Small = trimFirstRune((trip.Small))
+	trip.Medium = trimFirstRune((trip.Medium))
+	trip.Large = trimFirstRune((trip.Large))
+
+	// Save paths to database
+	models.UpdateTripStruct(trip)
 }
