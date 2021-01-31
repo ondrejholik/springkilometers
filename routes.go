@@ -53,7 +53,7 @@ func initializeRoutes() {
 	{
 		tripRoutes.GET("/all", handlers.ShowTripsPage)
 		tripRoutes.GET("/create", mid.EnsureLoggedIn(), handlers.ShowTripCreationPage)
-		tripRoutes.GET("/join/:id", handlers.GetTrip)
+		tripRoutes.GET("/join/:id", mid.EnsureLoggedIn(), handlers.GetTrip)
 		tripRoutes.GET("/update/:id", mid.EnsureLoggedIn(), handlers.ShowTripUpdatePage)
 		tripRoutes.GET("/view/:id", handlers.GetTrip)
 

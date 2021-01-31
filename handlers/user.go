@@ -40,6 +40,17 @@ func MyTrips(c *gin.Context) {
 
 }
 
+// MyTrips -- Success
+func MyTripsSuccess(c *gin.Context) {
+	session := sessions.Default(c)
+	currentUser := session.Get("current_user")
+	result := models.GetUserTrips(currentUser.(string))
+	Render(c, gin.H{
+		"title":   "Trip successfuly added",
+		"payload": result}, "user-trips-success.html")
+
+}
+
 // JoinTrip --
 func JoinTrip(c *gin.Context) {
 	session := sessions.Default(c)
