@@ -11,6 +11,7 @@ func initializeRoutes() {
 	// Use the setUserStatus middleware for every route to set a flag
 	// indicating whether the request was from an authenticated user or not
 	router.Use(mid.SetUserStatus())
+	router.Static("/static", "./static")
 	router.Use(sessions.Sessions("mysession", sessions.NewCookieStore([]byte("secret"))))
 
 	// Use db in context
