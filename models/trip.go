@@ -9,19 +9,36 @@ import (
 	"gorm.io/gorm"
 )
 
-// Trip model
-type Trip struct {
-	ID         int       `json:"id"`
-	Name       string    `json:"name"`
-	Withbike   bool      `json:"withbike"`
-	Content    string    `json:"content"`
-	Km         float64   `json:"km"`
+// Image model
+type Image struct {
+	Tripref int `json:"tripref"`
+
 	CreatedOn  time.Time `json:"created_on"`
 	DeletedOn  time.Time `json:"deleted_on"`
 	ModifiedOn time.Time `json:"modified_on"`
 	UpdatedOn  time.Time `json:"updated_on"`
-	Author     string    `json:"author"`
-	Users      []User    `gorm:"many2many:user_trip;"`
+}
+
+// Trip model
+type Trip struct {
+	ID       int     `json:"id"`
+	Name     string  `json:"name"`
+	Withbike bool    `json:"withbike"`
+	Content  string  `json:"content"`
+	Km       float64 `json:"km"`
+	Author   string  `json:"author"`
+
+	Tiny   string `json:"tiny"`
+	Small  string `json:"small"`
+	Medium string `json:"medium"`
+	Large  string `json:"large"`
+
+	Users []User `gorm:"many2many:user_trip;"`
+
+	CreatedOn  time.Time `json:"created_on"`
+	DeletedOn  time.Time `json:"deleted_on"`
+	ModifiedOn time.Time `json:"modified_on"`
+	UpdatedOn  time.Time `json:"updated_on"`
 }
 
 // GetUserTrips --
@@ -36,9 +53,11 @@ func GetUserTrips(username string) []Trip {
 func GetTrips() []Trip {
 	var trips []Trip
 	result := db.Find(&trips)
+
 	if result.Error != nil {
 		log.Panic(result.Error)
 	}
+
 	return trips
 }
 
@@ -103,7 +122,17 @@ func CreateNewTrip(username, name, content, kilometersCount, withbike string) (*
 
 	wb := withbike == "on"
 
-	newTrip := Trip{Name: name, Content: content, Km: kmc, Withbike: wb, Author: username}
+	newTrip := Trip{
+		Name:     name,
+		Content:  content,
+		Km:       kmc,
+		Withbike: wb,
+		Author:   username,
+		Tiny:     "/static/default/tiny.webp",
+		Small:    "/static/default/small.webp",
+		Medium:   "/static/default/medium.webp",
+		Large:    "/static/default/large.webp",
+	}
 
 	result := db.Create(&newTrip) // pass pointer of data to Create
 	if result.Error != nil {
@@ -144,6 +173,13 @@ func UpdateTrip(id int, username, name, content, kilometersCount, withbike strin
 
 	db.Save(&trip)
 	return trip, nil
+}
+
+// UpdateTripStruct --
+func UpdateTripStruct(trip Trip) (*Trip, error) {
+
+	db.Save(&trip)
+	return &trip, nil
 }
 
 // DeleteTripByID --
