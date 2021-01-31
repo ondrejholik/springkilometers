@@ -19,6 +19,8 @@ import (
 
 	"github.com/gin-gonic/contrib/sessions"
 	"github.com/gin-gonic/gin"
+	"github.com/muesli/smartcrop"
+	"github.com/muesli/smartcrop/nfnt"
 	"github.com/nfnt/resize"
 	models "github.com/ondrejholik/springkilometers/models"
 	"golang.org/x/image/webp"
@@ -206,6 +208,49 @@ func trimFirstRune(s string) string {
 	return s[i:]
 }
 
+// GCD greates common divisor
+func GCD(a, b int) int {
+	for b != 0 {
+		t := b
+		b = a % b
+		a = t
+	}
+	return a
+}
+
+func crop(img image.Image, w, h int, resize bool) image.Image {
+	width, height := getCropDimensions(img, w, h)
+	resizer := nfnt.NewDefaultResizer()
+	analyzer := smartcrop.NewAnalyzer(resizer)
+	topCrop, _ := analyzer.FindBestCrop(img, width, height)
+
+	type SubImager interface {
+		SubImage(r image.Rectangle) image.Image
+	}
+	img = img.(SubImager).SubImage(topCrop)
+	if resize && (img.Bounds().Dx() != width || img.Bounds().Dy() != height) {
+		img = resizer.Resize(img, uint(width), uint(height))
+	}
+	return img
+}
+
+func getCropDimensions(img image.Image, width, height int) (int, int) {
+	// if we don't have width or height set use the smaller image dimension as both width and height
+	if width == 0 && height == 0 {
+		bounds := img.Bounds()
+		x := bounds.Dx()
+		y := bounds.Dy()
+		if x < y {
+			width = x
+			height = x
+		} else {
+			width = y
+			height = y
+		}
+	}
+	return width, height
+}
+
 func compression(trip models.Trip, file multipart.File, filename, filetype string) {
 	var image image.Image
 	var err error
@@ -226,6 +271,9 @@ func compression(trip models.Trip, file multipart.File, filename, filetype strin
 		}
 	}
 
+	// Smart cropping
+	image = crop(image, 1024, 768, true)
+
 	// Put new paths to Trip struct
 	trip.Tiny = fmt.Sprintf("./static/tiny_%s.jpg", filename)
 	trip.Small = fmt.Sprintf("./static/small_%s.jpg", filename)
@@ -234,16 +282,16 @@ func compression(trip models.Trip, file multipart.File, filename, filetype strin
 
 	// Resize image to
 	// Tiny 	->    80x 60
-	tiny := resize.Resize(80, 60, image, resize.Lanczos3)
+	tiny := resize.Resize(80, 60, image, resize.Bilinear)
 
 	// Small 	->	 160x120
-	small := resize.Resize(160, 120, image, resize.Lanczos3)
+	small := resize.Resize(160, 120, image, resize.Bilinear)
 
 	// Medium 	-> 	 640x480
-	medium := resize.Resize(640, 480, image, resize.Lanczos3)
+	medium := resize.Resize(640, 480, image, resize.Bilinear)
 
 	// Large 	-> 	1024x768
-	large := resize.Resize(1024, 768, image, resize.Lanczos3)
+	large := resize.Resize(1024, 768, image, resize.Bilinear)
 
 	tinyfile, err := os.Create(trip.Tiny)
 	if err != nil {
