@@ -150,6 +150,25 @@ func CreateTrip(c *gin.Context) {
 	kilometersCount := c.PostForm("km")
 	withbike := c.PostForm("withbike")
 
+	_, header, err := c.Request.FormFile("image")
+	if err != nil {
+		c.AbortWithError(500, http.ErrMissingFile)
+	}
+
+	// TODO: Check image size (max 15MB)
+	if header.Size > 15000000 {
+		log.Println("Error image too big")
+	}
+
+	file, err := header.Open()
+	if err != nil {
+		log.Panic(err)
+	}
+
+	// Get file name x
+	filename := getImageName(header.Filename)
+	filetype := header.Header["Content-Type"][0]
+
 	session := sessions.Default(c)
 	username := session.Get("current_user")
 
