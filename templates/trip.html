@@ -1,10 +1,13 @@
-<!--Embed the header.html template at this location-->
 {{ template "header.html" .}}
-
-
+{{ if eq .message  ""}}
+{{else}}
+<div class="notification is-success">
+    {{.message}}
+</div>
+{{end}}
 <div class="column is-half  is-offset-one-quarter ">
     <h1 class="title is-1">{{.payload.Name}}
-        <span class="tag is-primary is-medium">{{.payload.Km}}</span>
+        <span class="tag is-primary is-medium">{{.payload.Km}} km</span>
         {{ if .payload.Withbike }}
         <span class="tag is-info is-medium"><i class="fas fa-bicycle"></i></span>
         {{end}}
@@ -26,10 +29,14 @@
     <form action="/trip/disjoin/{{.payload.ID}}" method="post">
         <button class="button" type="submit" name="join" value="-">-</button>
     </form>
-    {{end}}
+
+    <h1 class="title is-4 mt-4">Attended</h2>
+        <div class="tags">
+            {{range .payload.Users}}
+            <a href="/u/view/{{.ID}}"><span class="tag is-warning is-light is-large mr-2">{{.Username}}</span></a>
+            {{end}}
+        </div>
+        {{end}}
 
 </div>
-
-
-
 {{ template "footer.html" .}}
