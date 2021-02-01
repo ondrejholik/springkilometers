@@ -34,6 +34,11 @@ func ShowIndexPage(c *gin.Context) {
 		"payload": result}, "index.html")
 }
 
+// ShowUser --
+func ShowUser(c *gin.Context) {
+	Render(c, gin.H{"title": "User"}, "user.html")
+}
+
 // ShowLoginPage --
 func ShowLoginPage(c *gin.Context) {
 	// Call the render function with the name of the template to render
