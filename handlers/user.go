@@ -76,10 +76,11 @@ func JoinTrip(c *gin.Context) {
 
 			models.UserJoinsTrip(currentUser.(string), *trip)
 			models.TripJoinsUser(currentUser.(string), *trip)
-
+			trip, _ = models.GetTripByIDWithUsers(tripID)
 			Render(c, gin.H{
 				"title":   "Successful joined trip",
-				"payload": trip}, "trip-joined.html")
+				"message": "Successful joined trip",
+				"payload": trip}, "trip.html")
 
 		} else {
 			// If the article is not found, abort with an error
@@ -102,10 +103,14 @@ func DisjoinTrip(c *gin.Context) {
 		// Check if the article exists
 		if trip, err := models.GetTripByID(tripID); err == nil {
 			currentUser := session.Get("current_user")
-			log.Println(currentUser)
-
 			models.UserDisjoinsTrip(currentUser.(string), *trip)
 			models.TripDisjoinsUser(currentUser.(string), *trip)
+			trip, _ = models.GetTripByIDWithUsers(tripID)
+			Render(c, gin.H{
+				"title":   trip.Name,
+				"message": "Trip disjoined!",
+				"payload": trip}, "trip.html")
+
 		} else {
 			// If the article is not found, abort with an error
 			c.AbortWithError(http.StatusNotFound, err)
@@ -165,6 +170,7 @@ func Logout(c *gin.Context) {
 
 	// Redirect to the home page
 	c.Redirect(http.StatusTemporaryRedirect, "/")
+	c.Abort()
 }
 
 // ShowRegistrationPage --

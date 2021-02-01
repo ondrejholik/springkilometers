@@ -60,6 +60,7 @@ func initializeRoutes() {
 		tripRoutes.POST("/create", mid.EnsureLoggedIn(), handlers.CreateTrip)
 		tripRoutes.POST("/delete/:id", mid.EnsureLoggedIn(), handlers.DeleteTrip)
 		tripRoutes.POST("/join/:id", mid.EnsureLoggedIn(), handlers.JoinTrip)
+		tripRoutes.POST("/disjoin/:id", mid.EnsureLoggedIn(), handlers.DisjoinTrip)
 		tripRoutes.POST("/update/:id", mid.EnsureLoggedIn(), handlers.UpdateTrip)
 	}
 
