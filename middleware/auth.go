@@ -40,7 +40,7 @@ func EnsureNotLoggedIn() gin.HandlerFunc {
 	}
 }
 
-// SetUserStatus
+// SetUserStatus --
 // This middleware sets whether the user is logged in or not
 func SetUserStatus() gin.HandlerFunc {
 	return func(c *gin.Context) {
