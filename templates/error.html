@@ -1,0 +1,21 @@
+<!--index.html-->
+
+<!--Embed the header.html template at this location-->
+{{ template "header.html" .}}
+
+
+<section class="hero is-danger is-halfheight">
+    <div class="hero-head has-text-centered">
+            <p class="title is-1">
+                {{.payload.Code}}
+            </p>
+            <p class="subtitle">
+                {{.payload.Message}}
+            </p>
+    </div>
+</section>
+
+
+
+
+{{ template "footer.html"}}

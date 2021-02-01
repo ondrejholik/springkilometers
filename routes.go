@@ -63,6 +63,8 @@ func initializeRoutes() {
 		tripRoutes.POST("/update/:id", mid.EnsureLoggedIn(), handlers.UpdateTrip)
 	}
 
+	router.NoRoute(handlers.NoRoute)
+
 }
 
 // SetDBMiddleware --
