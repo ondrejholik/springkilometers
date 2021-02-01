@@ -9,16 +9,6 @@ import (
 	"gorm.io/gorm"
 )
 
-// Image model
-type Image struct {
-	Tripref int `json:"tripref"`
-
-	CreatedOn  time.Time `json:"created_on"`
-	DeletedOn  time.Time `json:"deleted_on"`
-	ModifiedOn time.Time `json:"modified_on"`
-	UpdatedOn  time.Time `json:"updated_on"`
-}
-
 // Trip model
 type Trip struct {
 	ID       int     `json:"id"`
