@@ -13,6 +13,19 @@ import (
 	models "github.com/ondrejholik/springkilometers/models"
 )
 
+// Err --
+type Err struct {
+	Code    int
+	Message string
+}
+
+// NoRoute --
+func NoRoute(c *gin.Context) {
+	Render(c, gin.H{
+		"title":   "Error",
+		"payload": Err{Code: 404, Message: "Not found"}}, "error.html")
+}
+
 //ShowIndexPage --
 func ShowIndexPage(c *gin.Context) {
 	result := models.GetUsersScore()
