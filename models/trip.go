@@ -68,6 +68,21 @@ func GetTripByID(id int) (*Trip, error) {
 	return nil, nil
 }
 
+// GetTripByIDWithUsers --
+// Return trip given id
+func GetTripByIDWithUsers(id int) (*Trip, error) {
+	var trip Trip
+	err := db.Preload("Users").First(&trip, id).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return nil, err
+	}
+
+	if trip.ID >= 0 {
+		return &trip, nil
+	}
+	return nil, nil
+}
+
 // ExistTripByID --
 func ExistTripByID(id int) (bool, error) {
 	var trip Trip
