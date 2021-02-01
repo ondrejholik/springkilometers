@@ -137,11 +137,12 @@ func GetTrip(c *gin.Context) {
 	// Check if the article ID is valid
 	if tripID, err := strconv.Atoi(c.Param("id")); err == nil {
 		// Check if the article exists
-		if trip, err := models.GetTripByID(tripID); err == nil {
+		if trip, err := models.GetTripByIDWithUsers(tripID); err == nil {
 			// Call the render function with the title, article and the name of the
 			// template
 			Render(c, gin.H{
 				"title":   trip.Name,
+				"message": "",
 				"payload": trip}, "trip.html")
 
 		} else {
