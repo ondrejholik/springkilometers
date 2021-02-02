@@ -281,10 +281,10 @@ func compression(trip models.Trip, file multipart.File, filename, filetype strin
 	image = crop(image, 1024, 768, true)
 
 	// Put new paths to Trip struct
-	trip.Tiny = fmt.Sprintf("./static/tiny_%s.jpg", filename)
-	trip.Small = fmt.Sprintf("./static/small_%s.jpg", filename)
-	trip.Medium = fmt.Sprintf("./static/medium_%s.jpg", filename)
-	trip.Large = fmt.Sprintf("./static/large_%s.jpg", filename)
+	trip.Tiny = fmt.Sprintf("./static/img/tiny_%s.jpg", filename)
+	trip.Small = fmt.Sprintf("./static/img/small_%s.jpg", filename)
+	trip.Medium = fmt.Sprintf("./static/img/medium_%s.jpg", filename)
+	trip.Large = fmt.Sprintf("./static/img/large_%s.jpg", filename)
 
 	// Resize image to
 	// Tiny 	->    80x 60

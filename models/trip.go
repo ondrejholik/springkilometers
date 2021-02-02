@@ -3,6 +3,7 @@ package springkilometers
 import (
 	"errors"
 	"log"
+	"os"
 	"strconv"
 	"time"
 
@@ -200,6 +201,27 @@ func UpdateTripStruct(trip Trip) (*Trip, error) {
 
 // DeleteTripByID --
 func DeleteTripByID(id int) (bool, error) {
+
+	var trip Trip
+	db.Table("trips").First(&trip, id)
+	// Delete also imgs from path
+	err := os.Remove("." + trip.Tiny)
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = os.Remove("." + trip.Small)
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = os.Remove("." + trip.Medium)
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = os.Remove("." + trip.Large)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	db.Delete(&Trip{}, id)
 	return true, nil
 }
