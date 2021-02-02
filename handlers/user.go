@@ -36,7 +36,44 @@ func ShowIndexPage(c *gin.Context) {
 
 // ShowUser --
 func ShowUser(c *gin.Context) {
-	Render(c, gin.H{"title": "User"}, "user.html")
+
+	if tripID, err := strconv.Atoi(c.Param("id")); err == nil {
+		// Check if the article exists
+		userpage := models.GetUserPage(tripID)
+		Render(c, gin.H{
+			"title":   "User",
+			"payload": userpage,
+		}, "user.html")
+
+	} else {
+		// If an invalid article ID is specified in the URL, abort with an error
+		c.AbortWithStatus(http.StatusNotFound)
+		err := Err{Code: 404, Message: "Not found"}
+		Render(c, gin.H{
+			"message": err,
+			"title":   "404 Not found",
+		}, "error.html")
+	}
+
+}
+
+// ShowUserByUsername --
+func ShowUserByUsername(c *gin.Context) {
+	username := c.Param("username")
+	if id, err := models.GetUserByUsername(username); err == nil {
+		userpage := models.GetUserPage(id)
+		Render(c, gin.H{
+			"title":   "User",
+			"payload": userpage,
+		}, "user.html")
+	} else {
+		c.AbortWithStatus(http.StatusNotFound)
+		err := Err{Code: 404, Message: "Not found"}
+		Render(c, gin.H{
+			"message": err,
+			"title":   "404 Not found",
+		}, "error.html")
+	}
 }
 
 // ShowLoginPage --
@@ -90,13 +127,23 @@ func JoinTrip(c *gin.Context) {
 		} else {
 			// If the article is not found, abort with an error
 			c.AbortWithError(http.StatusNotFound, err)
-			log.Println(err)
+			c.AbortWithStatus(http.StatusNotFound)
+			err := Err{Code: 404, Message: "Not found"}
+			Render(c, gin.H{
+				"message": err,
+				"title":   "Not found",
+			}, "error.html")
 		}
 
 	} else {
 		// If an invalid article ID is specified in the URL, abort with an error
 		c.AbortWithStatus(http.StatusNotFound)
-		log.Println(err)
+		c.AbortWithStatus(http.StatusNotFound)
+		err := Err{Code: 404, Message: "Not found"}
+		Render(c, gin.H{
+			"message": err,
+			"title":   "Not found",
+		}, "error.html")
 	}
 }
 
@@ -119,13 +166,23 @@ func DisjoinTrip(c *gin.Context) {
 		} else {
 			// If the article is not found, abort with an error
 			c.AbortWithError(http.StatusNotFound, err)
-			log.Println(err)
+			c.AbortWithStatus(http.StatusNotFound)
+			err := Err{Code: 404, Message: "Not found"}
+			Render(c, gin.H{
+				"message": err,
+				"title":   "Not found",
+			}, "error.html")
 		}
 
 	} else {
 		// If an invalid article ID is specified in the URL, abort with an error
 		c.AbortWithStatus(http.StatusNotFound)
-		log.Println(err)
+		c.AbortWithStatus(http.StatusNotFound)
+		err := Err{Code: 404, Message: "Not found"}
+		Render(c, gin.H{
+			"message": err,
+			"title":   "Not found",
+		}, "error.html")
 	}
 }
 
