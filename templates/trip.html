@@ -1,5 +1,5 @@
 {{ template "header.html" .}}
-{{ if eq .message  ""}}
+{{ if eq .message ""}}
 {{else}}
 <div class="notification is-success">
     {{.message}}
@@ -21,22 +21,25 @@
     <!--Display the content of the article-->
     <p class="content block is-medium has-text-justified">{{.payload.Content}}</p>
 
-    {{ if .is_logged_in}}
-    <form action="/trip/join/{{.payload.ID}}" method="post">
-        <button class="button is-primary" type="submit" name="join" value="+" href="">+</button>
-    </form>
-
-    <form action="/trip/disjoin/{{.payload.ID}}" method="post">
-        <button class="button" type="submit" name="join" value="-">-</button>
-    </form>
-
-    <h1 class="title is-4 mt-4">Attended</h2>
-        <div class="tags">
-            {{range .payload.Users}}
-            <a href="/u/view/{{.ID}}"><span class="tag is-warning is-light is-large mr-2">{{.Username}}</span></a>
-            {{end}}
-        </div>
+    <h1 class="title is-4 mt-4">Attended</h1>
+    <div class="tags">
+        {{range .payload.Users}}
+        <a href="/u/view/{{.ID}}"><span class="tag is-warning is-light is-large mr-2">{{.Username}}</span></a>
         {{end}}
+    </div>
+
+    {{ if .is_logged_in}}
+        {{if not .isjoined}}
+    <form action="/trip/join/{{.payload.ID}}" method="post">
+        <button class="button is-success" type="submit" name="join" value="Join" href="">Join</button>
+    </form>
+        {{else}}
+    <form action="/trip/disjoin/{{.payload.ID}}" method="post">
+        <button class="button is-danger" type="submit" name="join" value="DisJoin">DisJoin</button>
+    </form>
+    {{end}}
+    {{end}}
+
 
 </div>
 {{ template "footer.html" .}}
