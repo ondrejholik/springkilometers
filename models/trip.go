@@ -24,6 +24,13 @@ type Trip struct {
 	Medium string `json:"medium"`
 	Large  string `json:"large"`
 
+	Timestamp int64 `json:"timestamp"`
+	Year      int   `json:"year"`
+	Month     int   `json:"month"`
+	Day       int   `json:"day"`
+	Hour      int   `json:"hour"`
+	Minute    int   `json:"minute"`
+
 	Users []User `gorm:"many2many:user_trip;"`
 
 	CreatedOn  time.Time `json:"created_on"`
@@ -35,7 +42,7 @@ type Trip struct {
 // GetUserTrips --
 func GetUserTrips(username string) []Trip {
 	var trips []Trip
-	db.Table("trips").Where("trips.author = ?", username).Scan(&trips)
+	db.Table("trips").Where("trips.author = ?", username).Order("timestamp desc").Scan(&trips)
 	return trips
 }
 
@@ -43,7 +50,7 @@ func GetUserTrips(username string) []Trip {
 // All trips with users sorted by date
 func GetTrips() []Trip {
 	var trips []Trip
-	result := db.Find(&trips)
+	result := db.Order("timestamp desc").Find(&trips)
 
 	if result.Error != nil {
 		log.Panic(result.Error)
@@ -129,6 +136,17 @@ func tripBelongsToUsername(tripID int, username string) bool {
 	return trip.Author == username
 }
 
+func getDate() (int, int, int, int, int) {
+	currentTime := time.Now()
+	minute := currentTime.Minute()
+	hour := currentTime.Hour()
+	day := currentTime.Day()
+	month := currentTime.Month()
+	year := currentTime.Year()
+
+	return year, int(month), day, hour, minute
+}
+
 // CreateNewTrip trip with all users
 func CreateNewTrip(username, name, content, kilometersCount, withbike string) (*Trip, error) {
 	kmc, err := strconv.ParseFloat(kilometersCount, 64)
@@ -137,18 +155,24 @@ func CreateNewTrip(username, name, content, kilometersCount, withbike string) (*
 		return nil, err
 	}
 
-	wb := withbike == "on"
+	year, month, day, hour, minute := getDate()
 
 	newTrip := Trip{
-		Name:     name,
-		Content:  content,
-		Km:       kmc,
-		Withbike: wb,
-		Author:   username,
-		Tiny:     "/static/default/tiny.webp",
-		Small:    "/static/default/small.webp",
-		Medium:   "/static/default/medium.webp",
-		Large:    "/static/default/large.webp",
+		Name:      name,
+		Content:   content,
+		Km:        kmc,
+		Withbike:  withbike == "on",
+		Author:    username,
+		Tiny:      "/static/default/tiny.webp",
+		Small:     "/static/default/small.webp",
+		Medium:    "/static/default/medium.webp",
+		Large:     "/static/default/large.webp",
+		Timestamp: time.Now().Unix(),
+		Year:      year,
+		Month:     month,
+		Day:       day,
+		Hour:      hour,
+		Minute:    minute,
 	}
 
 	result := db.Create(&newTrip) // pass pointer of data to Create
