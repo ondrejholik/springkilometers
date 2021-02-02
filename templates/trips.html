@@ -41,7 +41,7 @@
         <span class="tag is-primary is-light is-small"><i class="fas fa-calendar"></i><time class="ml-1"
             datetime="{{.Year}}-{{.Month}}-{{.Day}}">{{.Day}}. {{.Month}}. {{.Year}}</time></span>
         <span class="tag is-primary is-light is-small"><i class="fas fa-clock"></i><time
-            class="ml-1">{{.Hour}}:{{.Minute}}</time></span>
+            class="ml-1">{{printf "%02d" .Hour }}:{{printf "%02d" .Minute }}</time></span>
       </div>
     </div>
   </div>

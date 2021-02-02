@@ -28,7 +28,7 @@
             <div class="level-item has-text-centered ml-3">
                 <span class="level-item tag  is-primary is-light is-large">
                     <i class="fas fa-clock"></i>
-                    <time class="ml-1">{{.payload.Hour}}:{{.payload.Minute}}</time>
+                    <time class="ml-1">{{printf "%02d" .payload.Hour }}:{{printf "%02d" .payload.Minute }}</time>
                 </span>
             </div>
         </div>
