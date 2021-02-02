@@ -26,11 +26,25 @@ type User struct {
 	Trips      []Trip    `gorm:"many2many:user_trip;"`
 }
 
+// UserPage --
+type UserPage struct {
+	ID        int       `json:"id"`
+	Username  string    `json:"username"`
+	CreatedOn time.Time `json:"created_on"`
+	Trips     []Trip    `gorm:"many2many:user_trip;"`
+	Km        float64   `json:"km"`
+	Kmbike    float64   `json:"kmbike"`
+	Kmwalk    float64   `json:"kmwalk"`
+	AvgKm     float64   `json:"avgkm"`
+}
+
 // Result of database query
 type Result struct {
-	ID       int
-	Username string
-	Km       float64
+	ID        int
+	Username  string
+	Km        float64
+	Avgkm     float64
+	Tripcount int
 }
 
 // GetUsersScore --
@@ -38,6 +52,43 @@ func GetUsersScore() []Result {
 	var result []Result
 	db.Table("users").Select("users.id, users.username, SUM(trips.km) as km").Joins("JOIN user_trip ON users.id = user_trip.user_id").Joins("JOIN trips ON user_trip.trip_id = trips.id").Group("users.id, users.username").Order("km desc").Scan(&result)
 	return result
+}
+
+// GetUserPage --
+func GetUserPage(id int) UserPage {
+	// ---------------//
+	// - score
+	// - km on bike
+	// - km walking
+	// - trips
+	// ---------------//
+
+	var userpage UserPage
+	var result Result
+	var user User
+	db.Table("users").Select("users.id, users.username, ROUND(AVG(trips.km),2) as avgkm, SUM(trips.km) as km, COUNT(trips.id) as tripcount").Joins("JOIN user_trip ON users.id = user_trip.user_id").Joins("JOIN trips ON user_trip.trip_id = trips.id").Group("users.id, users.username").First(&result, id)
+	db.Table("users").Select("SUM(trips.km) as kmbike").Joins("JOIN user_trip ON users.id = user_trip.user_id").Joins("JOIN trips ON user_trip.trip_id = trips.id").Where("trips.withbike = ?", true).Group("users.id").First(&userpage, id)
+	//db.Table("users").Select("users.id, users.username, trips.*").Joins("JOIN user_trip ON users.id = user_trip.user_id").Joins("JOIN trips ON user_trip.trip_id = trips.id").First(&userpage, id)
+	db.Preload("Trips").First(&user, id)
+
+	userpage.Km = result.Km
+	userpage.AvgKm = result.Avgkm
+	userpage.Kmwalk = userpage.Km - userpage.Kmbike
+	userpage.Trips = user.Trips
+	userpage.ID = user.ID
+	userpage.Username = user.Username
+
+	return userpage
+}
+
+// GetUserByUsername --
+func GetUserByUsername(username string) (int, error) {
+	var user User
+	err := db.Table("users").Select("users.id").Where("users.username = ?", username).First(&user).Error
+	if err != nil {
+		return -1, err
+	}
+	return user.ID, nil
 }
 
 // random salt with given length

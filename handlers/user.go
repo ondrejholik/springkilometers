@@ -36,7 +36,35 @@ func ShowIndexPage(c *gin.Context) {
 
 // ShowUser --
 func ShowUser(c *gin.Context) {
-	Render(c, gin.H{"title": "User"}, "user.html")
+
+	if tripID, err := strconv.Atoi(c.Param("id")); err == nil {
+		// Check if the article exists
+		userpage := models.GetUserPage(tripID)
+		Render(c, gin.H{
+			"title":   "User",
+			"payload": userpage,
+		}, "user.html")
+
+	} else {
+		// If an invalid article ID is specified in the URL, abort with an error
+		c.AbortWithStatus(http.StatusNotFound)
+		log.Println(err)
+	}
+
+}
+
+// ShowUserByUsername --
+func ShowUserByUsername(c *gin.Context) {
+	username := c.Param("username")
+	if id, err := models.GetUserByUsername(username); err == nil {
+		userpage := models.GetUserPage(id)
+		Render(c, gin.H{
+			"title":   "User",
+			"payload": userpage,
+		}, "user.html")
+	} else {
+		c.AbortWithStatus(http.StatusNotFound)
+	}
 }
 
 // ShowLoginPage --
