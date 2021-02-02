@@ -4,13 +4,17 @@
     <div class="level">
         <div class="level-item">
             <figure class="image is-128x128 ">
-                <img class="is-rounded" src="https://avatars.dicebear.com/4.5/api/gridy/lorem.svg"
+                <img class="is-rounded" src="https://avatars.dicebear.com/4.5/api/gridy/{{.payload.Username}}.svg"
                     alt="profile picture">
             </figure>
         </div>
     </div>
-    <progress class="progress is-success" value="30" max="100">60%</progress>
-    <h1 class="title is-1">Lorem</h1>
+    {{if ge .payload.Km 100.0 }}
+    <progress class="progress is-success" value="{{.payload.Km}}" max="100">{{.payload.Km}}%</progress>
+    {{else}}
+    <progress class="progress is-info" value="{{.payload.Km}}" max="100">{{.payload.Km}}%</progress>
+    {{end}}
+    <h1 class="title is-1">{{.payload.Username}}</h1>
 
     <!--
     <h1 class="title is-4 mt-4">Achievments</h1>
@@ -31,58 +35,50 @@
         <tbody>
             <tr>
                 <td>Km sum</td>
-                <td>10</td>
-            </tr>
-            <tr>
-                <td>Number of villages</td>
-                <td>4</td>
+                <td>{{.payload.Km}}</td>
             </tr>
             <tr>
                 <td>Bike km</td>
-                <td>67</td>
+                <td>{{.payload.Kmbike}}</td>
             </tr>
             <tr>
                 <td>Walk km</td>
-                <td>8</td>
+                <td>{{.payload.Kmwalk}}</td>
             </tr>
             <tr>
                 <td>AVG KM on Trip</td>
-                <td>6</td>
+                <td>{{.payload.AvgKm}}</td>
             </tr>
-
-
         </tbody>
     </table>
 
 
 
 
-    <h1 class="title is-4 mt-4">Trips</h2>
-        <div class="box column">
-            <article class="media">
-                <div class="media-left">
-                    <figure class="image is-64x64">
-                        <img class="" src="/static/default/tiny.webp" alt="Image">
-                    </figure>
-                    <div class="level-left mt-1">
-                        <span class="tag is-primary is-normal is-rounded ml-1">10</span>
-                        <span class="tag is-info is-normal is-rounded ml-1"><i class="fas fa-bicycle"></i></span>
-                    </div>
+    <h1 class="title is-4 mt-4">Trips</h1>
+    {{ range .payload.Trips}}
+    <div class="box column">
+        <article class="media">
+            <div class="media-left">
+                <figure class="image is-64x64">
+                    <img class="" src="{{.Tiny}}" alt="Image">
+                </figure>
+                <div class="level-left mt-1">
+                    <span class="tag is-primary is-normal is-rounded ml-1">10</span>
+                    <span class="tag is-info is-normal is-rounded ml-1"><i class="fas fa-bicycle"></i></span>
                 </div>
-                <div class="media-content">
+            </div>
+            <div class="media-content">
+                <div class="content">
                     <div class="level">
-
-                    </div>
-                    <div class="content">
-
-                        <div class="level">
-                            <div class="level-left">
-                                <a href="/trip/view/{{.ID}}"><strong class="title is-5">Name of trip<strong></a>
-                            </div>
+                        <div class="level-left">
+                            <a href="/trip/view/{{.ID}}"><strong class="title is-5">{{.Name}}</strong></a>
                         </div>
                     </div>
                 </div>
-            </article>
-        </div>
+            </div>
+        </article>
+    </div>
+    {{end}}
 </div>
 {{ template "footer.html" .}}
