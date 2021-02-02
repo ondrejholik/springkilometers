@@ -83,6 +83,17 @@ func GetTripByIDWithUsers(id int) (*Trip, error) {
 	return nil, nil
 }
 
+// TripHasUser --
+func TripHasUser(id int, username string) bool {
+	// select * from trips inner join user_trip on user_trip.trip_id = trips.id
+	// inner join users on users.id = user_trip.user_id
+	// where users.username = 'o' and trips.id = 349;
+	var count int64
+	db.Table("trips").Joins("INNER JOIN user_trip ON user_trip.trip_id = trips.id").Joins("INNER JOIN users on users.id = user_trip.user_id").Where("users.username = ? and trips.id = ?", username, id).Count(&count)
+	log.Println("Count of user-trip : ", count == 1)
+	return count == 1
+}
+
 // ExistTripByID --
 func ExistTripByID(id int) (bool, error) {
 	var trip Trip

@@ -139,11 +139,16 @@ func GetTrip(c *gin.Context) {
 		// Check if the article exists
 		if trip, err := models.GetTripByIDWithUsers(tripID); err == nil {
 			// Call the render function with the title, article and the name of the
+			// Is logged user joined in current trip?
+			session := sessions.Default(c)
+			username := session.Get("current_user")
+			hasUser := models.TripHasUser(tripID, username.(string))
 			// template
 			Render(c, gin.H{
-				"title":   trip.Name,
-				"message": "",
-				"payload": trip}, "trip.html")
+				"title":    trip.Name,
+				"message":  "",
+				"isjoined": hasUser,
+				"payload":  trip}, "trip.html")
 
 		} else {
 			// If the article is not found, abort with an error

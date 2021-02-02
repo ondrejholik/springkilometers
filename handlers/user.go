@@ -114,15 +114,16 @@ func JoinTrip(c *gin.Context) {
 		// Check if the article exists
 		if trip, err := models.GetTripByID(tripID); err == nil {
 			currentUser := session.Get("current_user")
-			log.Println(currentUser)
 
+			hasUser := models.TripHasUser(tripID, currentUser.(string))
 			models.UserJoinsTrip(currentUser.(string), *trip)
 			models.TripJoinsUser(currentUser.(string), *trip)
 			trip, _ = models.GetTripByIDWithUsers(tripID)
 			Render(c, gin.H{
-				"title":   "Successful joined trip",
-				"message": "Successful joined trip",
-				"payload": trip}, "trip.html")
+				"title":    "Successful joined trip",
+				"isjoined": hasUser,
+				"message":  "Successful joined trip",
+				"payload":  trip}, "trip.html")
 
 		} else {
 			// If the article is not found, abort with an error
