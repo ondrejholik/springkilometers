@@ -9,14 +9,15 @@
   <div class="card mb-4">
     <div class="card-image">
       <figure class="image is-4by3">
-        <img src="{{.Medium}}" alt="Placeholder image">
+        <img src="{{.Medium}}" alt="{{.Name}}">
       </figure>
     </div>
     <div class="card-content">
       <div class="media">
         <div class="media-left">
           <figure class="image is-48x48 ">
-            <img class="is-rounded" src="https://avatars.dicebear.com/4.5/api/gridy/{{.Author}}.svg" alt="Placeholder image">
+            <img class="is-rounded" src="https://avatars.dicebear.com/4.5/api/gridy/{{.Author}}.svg"
+              alt="Placeholder image">
           </figure>
         </div>
         <div class="media-content">
@@ -31,9 +32,16 @@
           <span class="tag is-info is-normal is-rounded ml-1"><i class="fas fa-bicycle"></i></span>
           {{end}}
         </p>
+        <p style="text-overflow: ellipsis;
+                  overflow: hidden; 
+                  height: 1.2em; 
+                  white-space: nowrap;">
           {{.Content}}
-          <br>
-          <time datetime="2016-1-1">11:09 PM - 1 Jan 2016</time>
+        </p>
+        <span class="tag is-primary is-light is-small"><i class="fas fa-calendar"></i><time class="ml-1"
+            datetime="{{.Year}}-{{.Month}}-{{.Day}}">{{.Day}}. {{.Month}}. {{.Year}}</time></span>
+        <span class="tag is-primary is-light is-small"><i class="fas fa-clock"></i><time
+            class="ml-1">{{.Hour}}:{{.Minute}}</time></span>
       </div>
     </div>
   </div>

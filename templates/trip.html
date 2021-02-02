@@ -16,9 +16,24 @@
     <figure class="image is-4by3">
         <img src="{{.payload.Large}}" alt="Placeholder image">
     </figure>
-    <!--Display the title of the article-->
-
-    <!--Display the content of the article-->
+    <div class="level has-text-centered">
+        <div class="level-item has-text-centered">
+            <div class="level-item has-text-centered">
+                <span class="tag is-primary is-light is-large">
+                    <i class="fas fa-calendar"></i>
+                    <time class="ml-1"
+                        datetime="{{.payload.Year}}-{{.payload.Month}}-{{.payload.Day}}">{{.payload.Day}}. {{.payload.Month}}. {{.payload.Year}}</time>
+                </span>
+            </div>
+            <div class="level-item has-text-centered ml-3">
+                <span class="level-item tag  is-primary is-light is-large">
+                    <i class="fas fa-clock"></i>
+                    <time class="ml-1">{{.payload.Hour}}:{{.payload.Minute}}</time>
+                </span>
+            </div>
+        </div>
+    </div>
+    <h1 class="title is-4 mt-4">Content</h1>
     <p class="content block is-medium has-text-justified">{{.payload.Content}}</p>
 
     <h1 class="title is-4 mt-4">Attended</h1>
@@ -29,11 +44,11 @@
     </div>
 
     {{ if .is_logged_in}}
-        {{if not .isjoined}}
+    {{if not .isjoined}}
     <form action="/trip/join/{{.payload.ID}}" method="post">
         <button class="button is-success" type="submit" name="join" value="Join" href="">Join</button>
     </form>
-        {{else}}
+    {{else}}
     <form action="/trip/disjoin/{{.payload.ID}}" method="post">
         <button class="button is-danger" type="submit" name="join" value="DisJoin">DisJoin</button>
     </form>
