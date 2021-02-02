@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"golang.org/x/crypto/sha3"
+	"gorm.io/gorm"
 )
 
 // User --
@@ -69,7 +70,9 @@ func GetUserPage(id int) UserPage {
 	db.Table("users").Select("users.id, users.username, ROUND(AVG(trips.km),2) as avgkm, SUM(trips.km) as km, COUNT(trips.id) as tripcount").Joins("JOIN user_trip ON users.id = user_trip.user_id").Joins("JOIN trips ON user_trip.trip_id = trips.id").Group("users.id, users.username").First(&result, id)
 	db.Table("users").Select("SUM(trips.km) as kmbike").Joins("JOIN user_trip ON users.id = user_trip.user_id").Joins("JOIN trips ON user_trip.trip_id = trips.id").Where("trips.withbike = ?", true).Group("users.id").First(&userpage, id)
 	//db.Table("users").Select("users.id, users.username, trips.*").Joins("JOIN user_trip ON users.id = user_trip.user_id").Joins("JOIN trips ON user_trip.trip_id = trips.id").First(&userpage, id)
-	db.Preload("Trips").First(&user, id)
+	db.Preload("Trips", func(db *gorm.DB) *gorm.DB {
+		return db.Order("trips.timestamp DESC")
+	}).First(&user, id)
 
 	userpage.Km = result.Km
 	userpage.AvgKm = result.Avgkm
