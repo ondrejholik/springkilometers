@@ -32,6 +32,7 @@ debug
 go.sum
 springkilometers
 postgres_data/
-static/
+static/gpx/
+static/img/
 
 
