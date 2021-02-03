@@ -67,7 +67,7 @@ func GetUserPage(id int) UserPage {
 	var userpage UserPage
 	var result Result
 	var user User
-	db.Table("users").Select("users.id, users.username, ROUND(AVG(trips.km),2) as avgkm, SUM(trips.km) as km, COUNT(trips.id) as tripcount").Joins("JOIN user_trip ON users.id = user_trip.user_id").Joins("JOIN trips ON user_trip.trip_id = trips.id").Group("users.id, users.username").First(&result, id)
+	db.Table("users").Select("users.id, users.username, AVG(trips.km) as avgkm, SUM(trips.km) as km, COUNT(trips.id) as tripcount").Joins("JOIN user_trip ON users.id = user_trip.user_id").Joins("JOIN trips ON user_trip.trip_id = trips.id").Group("users.id, users.username").First(&result, id)
 	db.Table("users").Select("SUM(trips.km) as kmbike").Joins("JOIN user_trip ON users.id = user_trip.user_id").Joins("JOIN trips ON user_trip.trip_id = trips.id").Where("trips.withbike = ?", true).Group("users.id").First(&userpage, id)
 	//db.Table("users").Select("users.id, users.username, trips.*").Joins("JOIN user_trip ON users.id = user_trip.user_id").Joins("JOIN trips ON user_trip.trip_id = trips.id").First(&userpage, id)
 	db.Preload("Trips", func(db *gorm.DB) *gorm.DB {
