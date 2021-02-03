@@ -7,6 +7,7 @@ import (
 	"image"
 	"image/jpeg"
 	"image/png"
+	"io"
 	"io/ioutil"
 	"log"
 	"math/rand"
@@ -90,7 +91,7 @@ func DeleteTrip(c *gin.Context) {
 	}
 }
 
-func getImageName(filename string) string {
+func getFileName(filename string) string {
 	name := "trip"
 	// Random part
 	rand.Seed(time.Now().UnixNano())
@@ -169,6 +170,10 @@ func CreateTrip(c *gin.Context) {
 
 	var newtrip *models.Trip
 	var err error
+	withgpx := true
+	var gpxname string
+	var gpxfile multipart.File
+
 	name := c.PostForm("name")
 	content := c.PostForm("content")
 	kilometersCount := c.PostForm("km")
@@ -178,10 +183,15 @@ func CreateTrip(c *gin.Context) {
 	if err != nil {
 		c.AbortWithError(500, http.ErrMissingFile)
 	}
-
-	// TODO: Check image size (max 15MB)
-	if header.Size > 15000000 {
-		log.Println("Error image too big")
+	_, gpx, err := c.Request.FormFile("gpx")
+	if err != nil {
+		withgpx = false
+	} else {
+		gpxname = getFileName(gpx.Filename)
+		gpxfile, err = gpx.Open()
+		if err != nil {
+			withgpx = false
+		}
 	}
 
 	file, err := header.Open()
@@ -189,39 +199,47 @@ func CreateTrip(c *gin.Context) {
 		log.Panic(err)
 	}
 
-	// Get file name x
-	filename := getImageName(header.Filename)
-	filetype := header.Header["Content-Type"][0]
+	// Get image file name
+	imagename := getFileName(header.Filename)
+	imagetype := header.Header["Content-Type"][0]
+
+	// Get gpx file name
 
 	session := sessions.Default(c)
 	username := session.Get("current_user")
 
-	if newtrip, err = models.CreateNewTrip(username.(string), name, content, kilometersCount, withbike); err == nil {
-		// If the article is created successfully, show success message
-		MyTripsSuccess(c)
+	if withgpx {
+		filename := fmt.Sprintf("/static/gpx/%s.gpx", gpxname)
+
+		saveGpx(newtrip.ID, gpxname, gpxfile)
+
+		if newtrip, err = models.CreateNewTrip(username.(string), name, content, kilometersCount, withbike, filename); err == nil {
+			// If the article is created successfully, show success message
+			MyTripsSuccess(c)
+
+		} else {
+			// if there was an error while creating the article, abort with an error
+			c.AbortWithStatus(http.StatusBadRequest)
+		}
 
 	} else {
-		// if there was an error while creating the article, abort with an error
-		c.AbortWithStatus(http.StatusBadRequest)
+		if newtrip, err = models.CreateNewTrip(username.(string), name, content, kilometersCount, withbike, ""); err == nil {
+			// If the article is created successfully, show success message
+			MyTripsSuccess(c)
+
+		} else {
+			// if there was an error while creating the article, abort with an error
+			c.AbortWithStatus(http.StatusBadRequest)
+		}
 	}
 
 	// Begin compression of image on background
-	go compression(*newtrip, file, filename, filetype)
+	go compression(*newtrip, file, imagename, imagetype)
 }
 
 func trimFirstRune(s string) string {
 	_, i := utf8.DecodeRuneInString(s)
 	return s[i:]
-}
-
-// GCD greates common divisor
-func GCD(a, b int) int {
-	for b != 0 {
-		t := b
-		b = a % b
-		a = t
-	}
-	return a
 }
 
 func crop(img image.Image, w, h int, resize bool) image.Image {
@@ -354,4 +372,24 @@ func compression(trip models.Trip, file multipart.File, filename, filetype strin
 
 	// Save paths to database
 	models.UpdateTripStruct(trip)
+}
+
+func saveGpx(tripid int, gpxname string, gpxfile multipart.File) {
+
+	filename := fmt.Sprintf("./static/gpx/%s.gpx", gpxname)
+	gpxsaved, err := os.Create(filename)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer gpxsaved.Close()
+
+	buf := bytes.NewBuffer(nil)
+	if _, err := io.Copy(buf, gpxfile); err != nil {
+		log.Panic(err)
+	}
+
+	if err = ioutil.WriteFile(filename, buf.Bytes(), 0666); err != nil {
+		log.Println(err)
+	}
+
 }

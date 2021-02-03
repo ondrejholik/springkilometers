@@ -9,8 +9,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta charset="UTF-8">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.2/css/bulma.min.css" crossorigin="anonymous">
-  <link rel="icon" type="image/png" href="/static/assets/favicon.ico"/>
+  <link rel="stylesheet" href="/static/assets/mybulma.min.css">  
+  <link rel="icon" type="image/png" href="/static/assets/favicon.ico" />
   <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -38,11 +38,10 @@
       }
 
     });
-
   </script>
 </head>
 
-<body class="container">
+<body>
   <section class="section">
     <!--Embed the menu.html template at this location-->
     {{ template "menu.html" . }}

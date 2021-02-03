@@ -23,6 +23,7 @@ type Trip struct {
 	Small  string `json:"small"`
 	Medium string `json:"medium"`
 	Large  string `json:"large"`
+	Gpx    string `json:"gpx"`
 
 	Timestamp int64 `json:"timestamp"`
 	Year      int   `json:"year"`
@@ -148,7 +149,7 @@ func getDate() (int, int, int, int, int) {
 }
 
 // CreateNewTrip trip with all users
-func CreateNewTrip(username, name, content, kilometersCount, withbike string) (*Trip, error) {
+func CreateNewTrip(username, name, content, kilometersCount, withbike, gpxname string) (*Trip, error) {
 	kmc, err := strconv.ParseFloat(kilometersCount, 64)
 	if err != nil {
 		log.Println(err)
@@ -173,6 +174,7 @@ func CreateNewTrip(username, name, content, kilometersCount, withbike string) (*
 		Day:       day,
 		Hour:      hour,
 		Minute:    minute,
+		Gpx:       gpxname,
 	}
 
 	result := db.Create(&newTrip) // pass pointer of data to Create
