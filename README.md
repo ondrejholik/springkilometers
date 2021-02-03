@@ -9,8 +9,8 @@
 
 
 ## About project
-    in czech: "Jarni kilometry" is annual tradition to walk 100km from March 20 to June 21(Spring in northern hemisphere).
-    The Webapp helps with better tracking and user experience of the whole process.
+- in czech: "Jarni kilometry" is annual tradition to walk 100km from March 20 to June 21(Spring in northern hemisphere).
+- The Webapp helps with better tracking and user experience of the whole process.
 
 
 ## Features
