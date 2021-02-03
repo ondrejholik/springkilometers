@@ -1,4 +1,4 @@
-[Česky](https://github.com/ondrejholik/springkilometers/master/PRECTIME.md)
+[Česky](https://github.com/ondrejholik/springkilometers/blob/master/PRECTIME.md)
 
 # Spring-Kilometers
 - Social network for tracking trips(walking, cycling). Sharing images, [gpx](https://en.wikipedia.org/wiki/GPS_Exchange_Format)
