@@ -35,13 +35,19 @@
     </div>
     <h1 class="title is-4 mt-4">Content</h1>
     <p class="content block is-medium has-text-justified">{{.payload.Content}}</p>
-
+    
     <h1 class="title is-4 mt-4">Attended</h1>
     <div class="tags">
         {{range .payload.Users}}
         <a href="/u/view/{{.ID}}"><span class="tag is-warning is-light is-large mr-2">{{.Username}}</span></a>
         {{end}}
     </div>
+    
+    {{ if eq .payload.Gpx ""}}
+    {{else}}
+    <h1 class="title is-4 mt-4">Route</h1>
+    <div id="map" class="box" style="height:350px"></div>
+    {{end}}
 
     {{ if .is_logged_in}}
     {{if not .isjoined}}
@@ -57,4 +63,34 @@
 
 
 </div>
+
+</section>
+
+
+{{ if eq .payload.Gpx ""}}
+{{else}}
+<script type="text/javascript" src="https://api.mapy.cz/loader.js"></script>
+<script type="text/javascript">Loader.load();</script>
+<script type="text/javascript">
+ //var center = SMap.Coords.fromWGS84(14.41790, 50.12655);
+ var m = new SMap(JAK.gel("map"));
+ m.addControl(new SMap.Control.Sync()); /* Aby mapa reagovala na změnu velikosti průhledu */
+ m.addDefaultLayer(SMap.DEF_TURIST).enable(); /* Turistický podklad */
+ 
+ var mouse = new SMap.Control.Mouse(SMap.MOUSE_PAN | SMap.MOUSE_WHEEL | SMap.MOUSE_ZOOM); /* Ovládání myší */
+ m.addControl(mouse);
+ 
+ var xhr = new JAK.Request(JAK.Request.XML);
+ xhr.setCallback(window, "response");
+ xhr.send("{{.payload.Gpx}}");
+ 
+ var response = function(xmlDoc) {
+     var gpx = new SMap.Layer.GPX(xmlDoc, null, {maxPoints: 10000});
+     m.addLayer(gpx);
+     gpx.enable();
+     gpx.fit();
+    } 
+</script>
+{{end}}
+
 {{ template "footer.html" .}}
