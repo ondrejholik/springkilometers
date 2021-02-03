@@ -35,19 +35,19 @@
         <tbody>
             <tr>
                 <td>Km sum</td>
-                <td>{{.payload.Km}}</td>
+                <td>{{ printf "%.2f" .payload.Km}}</td>
             </tr>
             <tr>
                 <td>Bike km</td>
-                <td>{{.payload.Kmbike}}</td>
+                <td>{{ printf "%.2f" .payload.Kmbike}}</td>
             </tr>
             <tr>
                 <td>Walk km</td>
-                <td>{{.payload.Kmwalk}}</td>
+                <td>{{ printf "%.2f" .payload.Kmwalk}}</td>
             </tr>
             <tr>
                 <td>AVG KM on Trip</td>
-                <td>{{.payload.AvgKm}}</td>
+                <td>{{ printf "%.2f" .payload.AvgKm}}</td>
             </tr>
         </tbody>
     </table>
@@ -64,7 +64,7 @@
                     <img class="" src="{{.Tiny}}" alt="Image">
                 </figure>
                 <div class="level-left mt-1">
-                    <span class="tag is-primary is-normal is-rounded ml-1">10</span>
+                    <span class="tag is-primary is-normal is-rounded ml-1">{{.Km}}</span>
                     {{ if .Withbike }}
                     <span class="tag is-info is-normal is-rounded ml-1"><i class="fas fa-bicycle"></i></span>
                     {{ end }}

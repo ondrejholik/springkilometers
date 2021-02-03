@@ -20,11 +20,10 @@
             </div>
             <div class="level-right ">
               {{if ge .Km 100.0 }}
-              <span class="tag is-success ml-2">{{.Km}} km</span>
+              <span class="tag is-success ml-2">{{ printf "%.1f" .Km}} km</span>
               <span class="tag is-warning is-light is-medium ml-2"><i class="fas fa-award"></i></span>
               {{ else}}
-              <span class="tag is-info ml-2">{{.Km}} km</span>
-
+              <span class="tag is-info ml-2">{{printf "%.1f" .Km}} km</span>
               {{end}}
             </div>
           </div>
