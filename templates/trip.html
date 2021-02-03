@@ -22,10 +22,11 @@
                 <span class="tag is-primary is-light is-large">
                     <i class="fas fa-calendar"></i>
                     <time class="ml-1"
-                        datetime="{{.payload.Year}}-{{.payload.Month}}-{{.payload.Day}}">{{.payload.Day}}. {{.payload.Month}}. {{.payload.Year}}</time>
+                        datetime="{{.payload.Year}}-{{.payload.Month}}-{{.payload.Day}}">{{.payload.Day}}.
+                        {{.payload.Month}}. {{.payload.Year}}</time>
                 </span>
             </div>
-            <div class="level-item has-text-centered ml-3">
+            <div class="level-item  ml-2">
                 <span class="level-item tag  is-primary is-light is-large">
                     <i class="fas fa-clock"></i>
                     <time class="ml-1">{{printf "%02d" .payload.Hour }}:{{printf "%02d" .payload.Minute }}</time>
@@ -35,14 +36,22 @@
     </div>
     <h1 class="title is-4 mt-4">Content</h1>
     <p class="content block is-medium has-text-justified">{{.payload.Content}}</p>
-    
+
     <h1 class="title is-4 mt-4">Attended</h1>
-    <div class="tags">
+    <div class="columns is-multiline">
         {{range .payload.Users}}
-        <a href="/u/view/{{.ID}}"><span class="tag is-warning is-light is-large mr-2">{{.Username}}</span></a>
+        <div class="column is-narrow">
+            <a href="/u/view/{{.ID}}">
+                <figure class="image is-64x64">
+                    <img class="is-rounded" src="https://avatars.dicebear.com/4.5/api/avataaars/{{.Username}}111111.svg"
+                        alt="Avatar">
+                </figure>
+                <span class="tag is-warning is-light is-large">{{.Username}}</span>
+            </a>
+        </div>
         {{end}}
     </div>
-    
+
     {{ if eq .payload.Gpx ""}}
     {{else}}
     <h1 class="title is-4 mt-4">Route</h1>
@@ -72,23 +81,23 @@
 <script type="text/javascript" src="https://api.mapy.cz/loader.js"></script>
 <script type="text/javascript">Loader.load();</script>
 <script type="text/javascript">
- //var center = SMap.Coords.fromWGS84(14.41790, 50.12655);
- var m = new SMap(JAK.gel("map"));
- m.addControl(new SMap.Control.Sync()); /* Aby mapa reagovala na změnu velikosti průhledu */
- m.addDefaultLayer(SMap.DEF_TURIST).enable(); /* Turistický podklad */
- 
- var mouse = new SMap.Control.Mouse(SMap.MOUSE_PAN | SMap.MOUSE_WHEEL | SMap.MOUSE_ZOOM); /* Ovládání myší */
- m.addControl(mouse);
- 
- var xhr = new JAK.Request(JAK.Request.XML);
- xhr.setCallback(window, "response");
- xhr.send("{{.payload.Gpx}}");
- 
- var response = function(xmlDoc) {
-     var gpx = new SMap.Layer.GPX(xmlDoc, null, {maxPoints: 10000});
-     m.addLayer(gpx);
-     gpx.enable();
-     gpx.fit();
+    //var center = SMap.Coords.fromWGS84(14.41790, 50.12655);
+    var m = new SMap(JAK.gel("map"));
+    m.addControl(new SMap.Control.Sync()); /* Aby mapa reagovala na změnu velikosti průhledu */
+    m.addDefaultLayer(SMap.DEF_TURIST).enable(); /* Turistický podklad */
+
+    var mouse = new SMap.Control.Mouse(SMap.MOUSE_PAN | SMap.MOUSE_WHEEL | SMap.MOUSE_ZOOM); /* Ovládání myší */
+    m.addControl(mouse);
+
+    var xhr = new JAK.Request(JAK.Request.XML);
+    xhr.setCallback(window, "response");
+    xhr.send("{{.payload.Gpx}}");
+
+    var response = function (xmlDoc) {
+        var gpx = new SMap.Layer.GPX(xmlDoc, null, { maxPoints: 10000 });
+        m.addLayer(gpx);
+        gpx.enable();
+        gpx.fit();
     } 
 </script>
 {{end}}
