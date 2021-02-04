@@ -18,5 +18,7 @@
  - creating trips, joining/disjoining trips, deleting trips
  - uploading, cropping, resizing images
  - user statistics
+ - ![statistics ](./Screenshots/user_stat.png)
  - sum of kilometers by user
+   ![scoreboard](./Screenshots/scoreboard.png)
  - Scoreboard of all users who were on at least one trip
