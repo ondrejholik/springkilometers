@@ -17,6 +17,8 @@
  - registration/login
  - creating trips, joining/disjoining trips, deleting trips
  - uploading, cropping, resizing images
+ - trips feed
+   ![trips ](./Screenshots/trips.png)
  - user statistics
    ![statistics ](./Screenshots/user_stat.png)
  - sum of kilometers by user
