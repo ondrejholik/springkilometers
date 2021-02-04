@@ -1,9 +1,10 @@
 package springkilometers
 
 import (
-	"fmt"
 	"log"
+	"os"
 
+	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -21,9 +22,15 @@ type Model struct {
 // Setup initializes the database instance
 func Setup() {
 	var err error
-	dsn := fmt.Sprintf("host=127.0.0.1 user=postgres password=postgres dbname=springkilometers port=5432 sslmode=disable ") //setting.DatabaseSetting.User,
-	//setting.DatabaseSetting.Password,
-	//setting.DatabaseSetting.Name)
+
+	err = godotenv.Load(".env")
+	if err != nil {
+		log.Fatal()
+	}
+
+	dsn := os.Getenv("DATABASE_URL")
+
+	//dsn := fmt.Sprintf("host=127.0.0.1 user=postgres password=postgres dbname=springkilometers port=5432 sslmode=disable ") //, dbpass, dbname, dbport)
 
 	db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
