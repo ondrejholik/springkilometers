@@ -143,7 +143,14 @@ func GetTrip(c *gin.Context) {
 			// Is logged user joined in current trip?
 			session := sessions.Default(c)
 			username := session.Get("current_user")
-			hasUser := models.TripHasUser(tripID, username.(string))
+			var hasUser bool
+			if username != nil {
+				hasUser = models.TripHasUser(tripID, username.(string))
+
+			} else {
+				hasUser = false
+			}
+
 			// template
 			Render(c, gin.H{
 				"title":    trip.Name,
