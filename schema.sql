@@ -4,7 +4,7 @@
 
 CREATE TABLE public.trips
 (
-    id integer NOT NULL DEFAULT nextval('trips_id_seq'::regclass),
+    id serial not null,
     name text COLLATE pg_catalog."default" NOT NULL,
     content text COLLATE pg_catalog."default",
     km numeric,
@@ -26,7 +26,7 @@ CREATE TABLE public.trips
     "timestamp" integer,
     gpx text COLLATE pg_catalog."default",
     CONSTRAINT trips_pkey PRIMARY KEY (id)
-)
+);
 
 TABLESPACE pg_default;
 
@@ -40,7 +40,7 @@ ALTER TABLE public.trips
 
 CREATE TABLE public.users
 (
-    id integer NOT NULL DEFAULT nextval('users_id_seq'::regclass),
+    id serial NOT NULL ,
     username text COLLATE pg_catalog."default" NOT NULL,
     password text COLLATE pg_catalog."default" NOT NULL,
     salt text COLLATE pg_catalog."default" NOT NULL,
@@ -62,7 +62,7 @@ ALTER TABLE public.users
 
 CREATE TABLE public.user_trip
 (
-    user_id integer NOT NULL,
+    user_id serial NOT NULL,
     trip_id integer NOT NULL,
     CONSTRAINT trip_user_pkey PRIMARY KEY (trip_id, user_id),
     CONSTRAINT user_trip_trip_id_fkey FOREIGN KEY (trip_id)
