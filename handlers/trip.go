@@ -198,6 +198,7 @@ func CreateTrip(c *gin.Context) {
 		gpxfile, err = gpx.Open()
 		if err != nil {
 			withgpx = false
+			log.Panic(err)
 		}
 	}
 
@@ -218,11 +219,10 @@ func CreateTrip(c *gin.Context) {
 	if withgpx {
 		filename := fmt.Sprintf("/static/gpx/%s.gpx", gpxname)
 
-		saveGpx(newtrip.ID, gpxname, gpxfile)
-
 		if newtrip, err = models.CreateNewTrip(username.(string), name, content, kilometersCount, withbike, filename); err == nil {
 			// If the article is created successfully, show success message
 			MyTripsSuccess(c)
+			saveGpx(newtrip.ID, gpxname, gpxfile)
 
 		} else {
 			// if there was an error while creating the article, abort with an error
