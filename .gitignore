@@ -34,5 +34,6 @@ springkilometers
 postgres_data/
 static/gpx/
 static/img/
+.env
 
 
