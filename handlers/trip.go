@@ -18,6 +18,7 @@ import (
 	"time"
 	"unicode/utf8"
 
+	"github.com/disintegration/imageorient"
 	"github.com/gin-gonic/contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/muesli/smartcrop"
@@ -304,7 +305,7 @@ func compression(trip models.Trip, file multipart.File, filename, filetype strin
 			log.Panic(err)
 		}
 	} else if filetype == "image/jpeg" {
-		image, err = jpeg.Decode(file)
+		image, _, err = imageorient.Decode(file)
 		if err != nil {
 			log.Panic(err)
 		}

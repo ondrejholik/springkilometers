@@ -6,6 +6,7 @@ require (
 	github.com/EDDYCJY/go-gin-example v0.0.0-20201228125222-28f372bf41f9
 	github.com/boj/redistore v0.0.0-20180917114910-cd5dcc76aeff // indirect
 	github.com/chai2010/webp v1.1.0 // indirect
+	github.com/disintegration/imageorient v0.0.0-20180920195336-8147d86e83ec
 	github.com/gin-gonic/contrib v0.0.0-20201101042839-6a891bf89f19
 	github.com/gin-gonic/gin v1.6.3
 	github.com/go-ini/ini v1.62.0
