@@ -24,6 +24,7 @@ import (
 	"github.com/muesli/smartcrop/nfnt"
 	"github.com/nfnt/resize"
 	models "github.com/ondrejholik/springkilometers/models"
+	"github.com/otiai10/opengraph"
 	"golang.org/x/image/webp"
 )
 
@@ -185,6 +186,18 @@ func CreateTrip(c *gin.Context) {
 	content := c.PostForm("content")
 	kilometersCount := c.PostForm("km")
 	withbike := c.PostForm("withbike")
+	var mapycz string
+
+	mapycz = c.PostForm("mapycz")
+	if mapycz != "" {
+		ogp, err := opengraph.Fetch("https://mapy.cz/s/hafucezelo")
+		if err != nil {
+			log.Fatal(err)
+			mapycz = ""
+		} else {
+			mapycz = ogp.Image[0].URL
+		}
+	}
 
 	_, header, err := c.Request.FormFile("image")
 	if err != nil {
@@ -219,7 +232,7 @@ func CreateTrip(c *gin.Context) {
 	if withgpx {
 		filename := fmt.Sprintf("/static/gpx/%s.gpx", gpxname)
 
-		if newtrip, err = models.CreateNewTrip(username.(string), name, content, kilometersCount, withbike, filename); err == nil {
+		if newtrip, err = models.CreateNewTrip(username.(string), name, content, kilometersCount, withbike, filename, mapycz); err == nil {
 			// If the article is created successfully, show success message
 			MyTripsSuccess(c)
 			saveGpx(newtrip.ID, gpxname, gpxfile)
@@ -230,7 +243,7 @@ func CreateTrip(c *gin.Context) {
 		}
 
 	} else {
-		if newtrip, err = models.CreateNewTrip(username.(string), name, content, kilometersCount, withbike, ""); err == nil {
+		if newtrip, err = models.CreateNewTrip(username.(string), name, content, kilometersCount, withbike, "", mapycz); err == nil {
 			// If the article is created successfully, show success message
 			MyTripsSuccess(c)
 

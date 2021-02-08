@@ -16,6 +16,8 @@ require (
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/muesli/smartcrop v0.3.0
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
+	github.com/otiai10/opengraph v1.1.3
+	github.com/otiai10/opengraph/v2 v2.0.2
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/shopspring/decimal v0.0.0-20200419222939-1884f454f8ea // indirect
 	golang.org/x/crypto v0.0.0-20201016220609-9e8e0b390897

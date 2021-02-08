@@ -18,6 +18,7 @@ type Trip struct {
 	Content  string  `json:"content"`
 	Km       float64 `json:"km"`
 	Author   string  `json:"author"`
+	Mapycz   string  `json:"mapycz"`
 
 	Tiny   string `json:"tiny"`
 	Small  string `json:"small"`
@@ -149,7 +150,7 @@ func getDate() (int, int, int, int, int) {
 }
 
 // CreateNewTrip trip with all users
-func CreateNewTrip(username, name, content, kilometersCount, withbike, gpxname string) (*Trip, error) {
+func CreateNewTrip(username, name, content, kilometersCount, withbike, gpxname, mapycz string) (*Trip, error) {
 	kmc, err := strconv.ParseFloat(kilometersCount, 64)
 	if err != nil {
 		log.Println(err)
@@ -175,6 +176,7 @@ func CreateNewTrip(username, name, content, kilometersCount, withbike, gpxname s
 		Hour:      hour,
 		Minute:    minute,
 		Gpx:       gpxname,
+		Mapycz:    mapycz,
 	}
 
 	result := db.Create(&newTrip) // pass pointer of data to Create
@@ -233,19 +235,24 @@ func DeleteTripByID(id int) (bool, error) {
 	// Delete also imgs from path
 	err := os.Remove("." + trip.Tiny)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 	err = os.Remove("." + trip.Small)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 	err = os.Remove("." + trip.Medium)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 	err = os.Remove("." + trip.Large)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+	}
+
+	err = os.Remove("." + trip.Gpx)
+	if err != nil {
+		log.Println(err)
 	}
 
 	db.Delete(&Trip{}, id)
