@@ -34,8 +34,11 @@
             </div>
         </div>
     </div>
+    {{ if eq .payload.Content ""}}
+    {{else}}
     <h1 class="title is-4 mt-4">Content</h1>
     <p class="content block is-medium has-text-justified">{{.payload.Content}}</p>
+    {{end}}
 
     <h1 class="title is-4 mt-4">Attended</h1>
     <div class="columns is-multiline">
@@ -53,6 +56,14 @@
     </div>
 
     {{ if eq .payload.Gpx ""}}
+    {{ if eq .payload.Mapycz ""}}
+    {{else}}
+    <h1 class="title is-4 mt-4">Route</h1>
+    <figure class="image">
+        <img src="{{.payload.Mapycz}}" alt="Placeholder image">
+    </figure>
+    
+    {{end}}
     {{else}}
     <h1 class="title is-4 mt-4">Route</h1>
     <div id="map" class="box" style="height:350px"></div>
