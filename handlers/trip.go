@@ -332,8 +332,8 @@ func compression(trip models.Trip, file multipart.File, filename, filetype strin
 	// Small 	->	 160x120
 	small := resize.Resize(160, 120, image, resize.Bilinear)
 
-	// Medium 	-> 	 640x480
-	medium := resize.Resize(640, 480, image, resize.Bilinear)
+	// Medium 	-> 	896x672
+	medium := resize.Resize(896, 672, image, resize.Bilinear)
 
 	// Large 	-> 	1024x768
 	large := resize.Resize(1024, 768, image, resize.Bilinear)
@@ -363,25 +363,25 @@ func compression(trip models.Trip, file multipart.File, filename, filetype strin
 	defer largefile.Close()
 
 	var buf bytes.Buffer
-	jpeg.Encode(&buf, tiny, nil)
+	jpeg.Encode(&buf, tiny, &jpeg.Options{Quality: 95})
 	if err = ioutil.WriteFile(trip.Tiny, buf.Bytes(), 0666); err != nil {
 		log.Println(err)
 	}
 
 	buf.Reset()
-	jpeg.Encode(&buf, small, nil)
+	jpeg.Encode(&buf, small, &jpeg.Options{Quality: 90})
 	if err = ioutil.WriteFile(trip.Small, buf.Bytes(), 0666); err != nil {
 		log.Println(err)
 	}
 
 	buf.Reset()
-	jpeg.Encode(&buf, medium, nil)
+	jpeg.Encode(&buf, medium, &jpeg.Options{Quality: 80})
 	if err = ioutil.WriteFile(trip.Medium, buf.Bytes(), 0666); err != nil {
 		log.Println(err)
 	}
 
 	buf.Reset()
-	jpeg.Encode(&buf, large, nil)
+	jpeg.Encode(&buf, large, &jpeg.Options{Quality: 75})
 	if err = ioutil.WriteFile(trip.Large, buf.Bytes(), 0666); err != nil {
 		log.Println(err)
 	}
