@@ -188,17 +188,6 @@ func CreateTrip(c *gin.Context) {
 	withbike := c.PostForm("withbike")
 	var mapycz string
 
-	mapycz = c.PostForm("mapycz")
-	if mapycz != "" {
-		ogp, err := opengraph.Fetch("https://mapy.cz/s/hafucezelo")
-		if err != nil {
-			log.Fatal(err)
-			mapycz = ""
-		} else {
-			mapycz = ogp.Image[0].URL
-		}
-	}
-
 	_, header, err := c.Request.FormFile("image")
 	if err != nil {
 		c.AbortWithError(500, http.ErrMissingFile)
@@ -232,7 +221,7 @@ func CreateTrip(c *gin.Context) {
 	if withgpx {
 		filename := fmt.Sprintf("/static/gpx/%s.gpx", gpxname)
 
-		if newtrip, err = models.CreateNewTrip(username.(string), name, content, kilometersCount, withbike, filename, mapycz); err == nil {
+		if newtrip, err = models.CreateNewTrip(username.(string), name, content, kilometersCount, withbike, filename, ""); err == nil {
 			// If the article is created successfully, show success message
 			MyTripsSuccess(c)
 			saveGpx(newtrip.ID, gpxname, gpxfile)
@@ -243,6 +232,17 @@ func CreateTrip(c *gin.Context) {
 		}
 
 	} else {
+		mapycz = c.PostForm("mapycz")
+		if mapycz != "" {
+			ogp, err := opengraph.Fetch(mapycz)
+			if err != nil {
+				log.Fatal(err)
+				mapycz = ""
+			} else {
+				mapycz = ogp.Image[0].URL
+			}
+		}
+
 		if newtrip, err = models.CreateNewTrip(username.(string), name, content, kilometersCount, withbike, "", mapycz); err == nil {
 			// If the article is created successfully, show success message
 			MyTripsSuccess(c)
