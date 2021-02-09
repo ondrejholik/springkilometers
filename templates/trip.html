@@ -8,9 +8,10 @@
   <title>{{ .title }}</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta charset="UTF-8">
-  <meta property="og:image" content="https://jarnikilometry.ddns.net{{.payload.Medium}}">
   <meta property="og:title" content="{{.payload.Name}}({{.payload.Km}}km)">
+  <meta property="og:description" content="{{.payload.Content}}" /> 
   <meta property="og:site_name" content="Spring kilometers">
+  <meta property="og:image:secure" content="https://jarnikilometry.ddns.net{{.payload.Medium}}">
 
   <link rel="stylesheet" href="/static/assets/font-awesome.min.css">
   <link rel="stylesheet" href="/static/assets/mybulma.min.css">
