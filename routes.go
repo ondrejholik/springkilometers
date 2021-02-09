@@ -13,7 +13,7 @@ func initializeRoutes() {
 	// indicating whether the request was from an authenticated user or not
 	router.Use(mid.SetUserStatus())
 	router.Use(gzip.Gzip(gzip.DefaultCompression))
-	router.Static("/static/assets", "./static/assets")
+	router.Static("/static", "./static")
 	router.Use(sessions.Sessions("mysession", sessions.NewCookieStore([]byte("secret"))))
 
 	// Use db in context
