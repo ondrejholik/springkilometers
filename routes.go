@@ -68,7 +68,6 @@ func initializeRoutes() {
 	}
 
 	router.NoRoute(handlers.NoRoute)
-	router.RunTLS(":8080", "./keys/server.pem", "./keys/server.key")
 
 }
 
