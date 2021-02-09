@@ -9,10 +9,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta charset="UTF-8">
   <link rel="stylesheet" href="/static/assets/font-awesome.min.css">
-  <link rel="stylesheet" href="/static/assets/mybulma.min.css">  
+  <link rel="stylesheet" href="/static/assets/mybulma.min.css">
   <link rel="icon" type="image/png" href="/static/assets/favicon.ico" />
   <script defer src="/static/assets/all.js"></script>
+  <script src="/static/assets/lazyload.min.js"></script>
   <script>
+    var lazyLoadInstance = new LazyLoad({
+      // Your custom settings go here
+    });
+
     document.addEventListener('DOMContentLoaded', () => {
 
       // Get all "navbar-burger" elements
