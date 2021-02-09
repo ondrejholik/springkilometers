@@ -68,7 +68,6 @@ func initializeRoutes() {
 	}
 
 	router.NoRoute(handlers.NoRoute)
-
 }
 
 // SetDBMiddleware --
