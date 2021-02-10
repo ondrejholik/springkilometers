@@ -2,7 +2,6 @@ package main
 
 import (
 	"github.com/gin-gonic/contrib/gzip"
-	"github.com/gin-gonic/contrib/sessions"
 	handlers "github.com/ondrejholik/springkilometers/handlers"
 	mid "github.com/ondrejholik/springkilometers/middleware"
 )
@@ -14,7 +13,6 @@ func initializeRoutes() {
 	router.Use(mid.SetUserStatus())
 	router.Use(gzip.Gzip(gzip.DefaultCompression))
 	router.Static("/static", "./static")
-	router.Use(sessions.Sessions("mysession", sessions.NewCookieStore([]byte("secret"))))
 
 	// Use db in context
 

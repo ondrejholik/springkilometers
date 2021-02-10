@@ -19,7 +19,6 @@ import (
 	"unicode/utf8"
 
 	"github.com/disintegration/imageorient"
-	"github.com/gin-gonic/contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/muesli/smartcrop"
 	"github.com/muesli/smartcrop/nfnt"
@@ -117,14 +116,15 @@ func UpdateTrip(c *gin.Context) {
 		kilometersCount := c.PostForm("km")
 		withbike := c.PostForm("withbike")
 
-		session := sessions.Default(c)
-		username := session.Get("current_user")
+		claims, err := ClaimsUser(c)
+		if err == nil {
 
-		if _, err := models.UpdateTrip(tripID, username.(string), name, content, kilometersCount, withbike); err == nil {
-			MyTrips(c)
-		} else {
-			// if there was an error while creating the article, abort with an error
-			c.AbortWithStatus(http.StatusBadRequest)
+			if _, err := models.UpdateTrip(tripID, claims.Username, name, content, kilometersCount, withbike); err == nil {
+				MyTrips(c)
+			} else {
+				// if there was an error while creating the article, abort with an error
+				c.AbortWithStatus(http.StatusBadRequest)
+			}
 		}
 
 	} else {
@@ -143,11 +143,11 @@ func GetTrip(c *gin.Context) {
 		if trip, err := models.GetTripByIDWithUsers(tripID); err == nil {
 			// Call the render function with the title, article and the name of the
 			// Is logged user joined in current trip?
-			session := sessions.Default(c)
-			username := session.Get("current_user")
+			claims, err := ClaimsUser(c)
+
 			var hasUser bool
-			if username != nil {
-				hasUser = models.TripHasUser(tripID, username.(string))
+			if err == nil {
+				hasUser = models.TripHasUser(tripID, claims.Username)
 
 			} else {
 				hasUser = false
@@ -216,46 +216,51 @@ func CreateTrip(c *gin.Context) {
 
 	// Get gpx file name
 
-	session := sessions.Default(c)
-	username := session.Get("current_user")
+	if claims, err := ClaimsUser(c); err == nil {
 
-	if withgpx {
-		filename := fmt.Sprintf("/static/gpx/%s.gpx", gpxname)
+		if withgpx {
+			filename := fmt.Sprintf("/static/gpx/%s.gpx", gpxname)
 
-		if newtrip, err = models.CreateNewTrip(username.(string), name, content, kilometersCount, withbike, filename, ""); err == nil {
-			// If the article is created successfully, show success message
-			MyTripsSuccess(c)
-			saveGpx(newtrip.ID, gpxname, gpxfile)
+			if newtrip, err = models.CreateNewTrip(claims.Username, name, content, kilometersCount, withbike, filename, ""); err == nil {
+				// If the article is created successfully, show success message
+				MyTripsSuccess(c)
+				saveGpx(newtrip.ID, gpxname, gpxfile)
+
+			} else {
+				// if there was an error while creating the article, abort with an error
+				c.AbortWithStatus(http.StatusBadRequest)
+			}
 
 		} else {
-			// if there was an error while creating the article, abort with an error
-			c.AbortWithStatus(http.StatusBadRequest)
-		}
+			mapycz = c.PostForm("mapycz")
+			if mapycz != "" {
+				ogp, err := opengraph.Fetch(mapycz)
+				if err != nil {
+					log.Fatal(err)
+					mapycz = ""
+				} else {
+					mapycz = ogp.Image[0].URL
+				}
+			}
 
-	} else {
-		mapycz = c.PostForm("mapycz")
-		if mapycz != "" {
-			ogp, err := opengraph.Fetch(mapycz)
-			if err != nil {
-				log.Fatal(err)
-				mapycz = ""
+			if newtrip, err = models.CreateNewTrip(claims.Username, name, content, kilometersCount, withbike, "", mapycz); err == nil {
+				// If the article is created successfully, show success message
+				MyTripsSuccess(c)
+
 			} else {
-				mapycz = ogp.Image[0].URL
+				// if there was an error while creating the article, abort with an error
+				c.AbortWithStatus(http.StatusBadRequest)
 			}
 		}
 
-		if newtrip, err = models.CreateNewTrip(username.(string), name, content, kilometersCount, withbike, "", mapycz); err == nil {
-			// If the article is created successfully, show success message
-			MyTripsSuccess(c)
-
-		} else {
-			// if there was an error while creating the article, abort with an error
-			c.AbortWithStatus(http.StatusBadRequest)
-		}
+		// Begin compression of image on background
+		go compression(*newtrip, file, imagename, imagetype)
+	} else {
+		Render(c, gin.H{
+			"message": err,
+			"title":   "Unauthorized",
+		}, "error.html")
 	}
-
-	// Begin compression of image on background
-	go compression(*newtrip, file, imagename, imagetype)
 }
 
 func trimFirstRune(s string) string {

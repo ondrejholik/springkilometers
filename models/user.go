@@ -115,10 +115,10 @@ func crypting(s string) string {
 
 // IsUserValid --
 // Check if the username and password combination is valid
-func IsUserValid(username, password string) bool {
+func IsUserValid(username, password string) (int, bool) {
 
 	if isUsernameAvailable(username) {
-		return false
+		return 0, false
 	}
 
 	var user User
@@ -127,7 +127,7 @@ func IsUserValid(username, password string) bool {
 	var pass string = crypting(password + user.Salt)
 	log.Println(pass == user.Password)
 
-	return pass == user.Password
+	return user.ID, pass == user.Password
 }
 
 // UserJoinsTrip --
@@ -145,12 +145,12 @@ func UserDisjoinsTrip(username string, trip Trip) {
 }
 
 // RegisterNewUser a new user with the given username and password
-func RegisterNewUser(username, password string) error {
+func RegisterNewUser(username, password string) (int, error) {
 	var user User
 	if strings.TrimSpace(password) == "" {
-		return errors.New("The password can't be empty")
+		return -1, errors.New("The password can't be empty")
 	} else if !isUsernameAvailable(username) {
-		return errors.New("The username isn't available")
+		return -1, errors.New("The username isn't available")
 	}
 
 	salt := salting(10)
@@ -159,10 +159,10 @@ func RegisterNewUser(username, password string) error {
 	user = User{Username: username, Password: pass, Salt: salt}
 	result := db.Create(&user) // pass pointer of data to Create
 	if result.Error != nil {
-		return result.Error
+		return -1, result.Error
 	}
 
-	return nil
+	return user.ID, nil
 }
 
 // Check if the supplied username is available

@@ -3,12 +3,14 @@
 package springkilometers
 
 import (
+	"errors"
 	"log"
-	"math/rand"
 	"net/http"
+	"os"
 	"strconv"
+	"time"
 
-	"github.com/gin-gonic/contrib/sessions"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	models "github.com/ondrejholik/springkilometers/models"
 )
@@ -17,6 +19,97 @@ import (
 type Err struct {
 	Code    int
 	Message string
+}
+
+// JwtWrapper wraps the signing key and the issuer
+type JwtWrapper struct {
+	SecretKey       string
+	Issuer          string
+	ExpirationHours int64
+}
+
+// JwtClaim adds email as a claim to the token
+type JwtClaim struct {
+	UserID   int
+	Username string
+	jwt.StandardClaims
+}
+
+// GenerateToken --
+func (j *JwtWrapper) GenerateToken(userID int, username string) (signedToken string, err error) {
+	claims := &JwtClaim{
+		UserID:   userID,
+		Username: username,
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: time.Now().Local().Add(time.Hour * time.Duration(j.ExpirationHours)).Unix(),
+			Issuer:    j.Issuer,
+		},
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	signedToken, err = token.SignedString([]byte(j.SecretKey))
+	if err != nil {
+		return
+	}
+
+	return
+}
+
+// ValidateToken validates the jwt token
+func (j *JwtWrapper) ValidateToken(signedToken string) (claims *JwtClaim, err error) {
+	token, err := jwt.ParseWithClaims(
+		signedToken,
+		&JwtClaim{},
+		func(token *jwt.Token) (interface{}, error) {
+			return []byte(j.SecretKey), nil
+		},
+	)
+
+	if err != nil {
+		return
+	}
+
+	claims, ok := token.Claims.(*JwtClaim)
+	if !ok {
+		err = errors.New("Couldn't parse claims")
+		return
+	}
+
+	if claims.ExpiresAt < time.Now().Local().Unix() {
+		err = errors.New("JWT is expired")
+		return
+	}
+
+	return
+
+}
+
+// ClaimsUser --
+func ClaimsUser(c *gin.Context) (*JwtClaim, error) {
+	var claims *JwtClaim
+	jwtWrapper := JwtWrapper{
+		SecretKey: os.Getenv("ACCESS_SECRET"),
+		Issuer:    "AuthService",
+	}
+
+	cookie, err := c.Cookie("token")
+	if err != nil {
+		Render(c, gin.H{
+			"message": err,
+			"title":   "Unauthorized",
+		}, "error.html")
+		return nil, err
+	}
+	claims, err = jwtWrapper.ValidateToken(cookie)
+	if err != nil {
+		Render(c, gin.H{
+			"message": err,
+			"title":   "Unauthorized",
+		}, "error.html")
+		return nil, err
+	}
+	return claims, nil
 }
 
 // NoRoute --
@@ -86,44 +179,45 @@ func ShowLoginPage(c *gin.Context) {
 
 // MyTrips --
 func MyTrips(c *gin.Context) {
-	session := sessions.Default(c)
-	currentUser := session.Get("current_user")
-	result := models.GetUserTrips(currentUser.(string))
-	Render(c, gin.H{
-		"title":   "My trips",
-		"payload": result}, "user-trips.html")
-
+	if claims, err := ClaimsUser(c); err == nil {
+		log.Printf("%+v", claims)
+		result := models.GetUserTrips(claims.Username)
+		Render(c, gin.H{
+			"title":   "My trips",
+			"payload": result}, "user-trips.html")
+	}
 }
 
 // MyTripsSuccess --
 func MyTripsSuccess(c *gin.Context) {
-	session := sessions.Default(c)
-	currentUser := session.Get("current_user")
-	result := models.GetUserTrips(currentUser.(string))
-	Render(c, gin.H{
-		"title":   "Trip successfuly added",
-		"payload": result}, "user-trips-success.html")
+	if claims, err := ClaimsUser(c); err == nil {
+		result := models.GetUserTrips(claims.Username)
+		Render(c, gin.H{
+			"title":   "Trip successfuly added",
+			"payload": result}, "user-trips-success.html")
 
+	}
 }
 
 // JoinTrip --
 func JoinTrip(c *gin.Context) {
-	session := sessions.Default(c)
 	// Check if the article ID is valid
 	if tripID, err := strconv.Atoi(c.Param("id")); err == nil {
 		// Check if the article exists
 		if trip, err := models.GetTripByID(tripID); err == nil {
-			currentUser := session.Get("current_user")
 
-			hasUser := models.TripHasUser(tripID, currentUser.(string))
-			models.UserJoinsTrip(currentUser.(string), *trip)
-			models.TripJoinsUser(currentUser.(string), *trip)
-			trip, _ = models.GetTripByIDWithUsers(tripID)
-			Render(c, gin.H{
-				"title":    "Successful joined trip",
-				"isjoined": hasUser,
-				"message":  "Successful joined trip",
-				"payload":  trip}, "trip.html")
+			claims, err := ClaimsUser(c)
+			if err == nil {
+				hasUser := models.TripHasUser(tripID, claims.Username)
+				models.UserJoinsTrip(claims.Username, *trip)
+				models.TripJoinsUser(claims.Username, *trip)
+				trip, _ = models.GetTripByIDWithUsers(tripID)
+				Render(c, gin.H{
+					"title":    "Successful joined trip",
+					"isjoined": hasUser,
+					"message":  "Successful joined trip",
+					"payload":  trip}, "trip.html")
+			}
 
 		} else {
 			// If the article is not found, abort with an error
@@ -150,19 +244,22 @@ func JoinTrip(c *gin.Context) {
 
 // DisjoinTrip --
 func DisjoinTrip(c *gin.Context) {
-	session := sessions.Default(c)
 	// Check if the article ID is valid
 	if tripID, err := strconv.Atoi(c.Param("id")); err == nil {
 		// Check if the article exists
 		if trip, err := models.GetTripByID(tripID); err == nil {
-			currentUser := session.Get("current_user")
-			models.UserDisjoinsTrip(currentUser.(string), *trip)
-			models.TripDisjoinsUser(currentUser.(string), *trip)
-			trip, _ = models.GetTripByIDWithUsers(tripID)
-			Render(c, gin.H{
-				"title":   trip.Name,
-				"message": "Trip disjoined!",
-				"payload": trip}, "trip.html")
+			// TODO: replace with ID
+			claims, err := ClaimsUser(c)
+			if err == nil {
+
+				models.UserDisjoinsTrip(claims.Username, *trip)
+				models.TripDisjoinsUser(claims.Username, *trip)
+				trip, _ = models.GetTripByIDWithUsers(tripID)
+				Render(c, gin.H{
+					"title":   trip.Name,
+					"message": "Trip disjoined!",
+					"payload": trip}, "trip.html")
+			}
 
 		} else {
 			// If the article is not found, abort with an error
@@ -192,18 +289,24 @@ func PerformLogin(c *gin.Context) {
 	// Obtain the POSTed username and password values
 	username := c.PostForm("username")
 	password := c.PostForm("password")
-	session := sessions.Default(c)
 
 	// Check if the username/password combination is valid
 
-	if models.IsUserValid(username, password) {
+	if userID, passed := models.IsUserValid(username, password); passed {
 		// If the username/password is valid set the token in a cookie
-		token := GenerateSessionToken()
-		c.SetCookie("token", token, 3600, "", "", false, true)
+		jwtWrapper := JwtWrapper{
+			SecretKey:       os.Getenv("ACCESS_SECRET"),
+			Issuer:          "AuthService",
+			ExpirationHours: 24,
+		}
+
+		token, err := jwtWrapper.GenerateToken(userID, username)
+		if err != nil {
+			log.Panic(err)
+		}
+
+		c.SetCookie("token", token, 10800, "", "", false, true)
 		c.Set("is_logged_in", true)
-		session.Set("current_user", username)
-		session.Save()
-		log.Println("settin:", username)
 
 		Render(c, gin.H{
 			"title": "Successful Login"}, "login-successful.html")
@@ -215,15 +318,6 @@ func PerformLogin(c *gin.Context) {
 			"ErrorTitle":   "Login Failed",
 			"ErrorMessage": "Invalid credentials provided"})
 	}
-}
-
-// GenerateSessionToken --
-func GenerateSessionToken() string {
-	// We're using a random 16 character string as the session token
-	// This is NOT a secure way of generating session tokens
-	// DO NOT USE THIS IN PRODUCTION
-	// TODO: proper way to generate session token
-	return strconv.FormatInt(rand.Int63(), 16)
 }
 
 // Logout --
@@ -248,16 +342,21 @@ func Register(c *gin.Context) {
 	// Obtain the POSTed username and password values
 	username := c.PostForm("username")
 	password := c.PostForm("password")
-	session := sessions.Default(c)
 
-	if err := models.RegisterNewUser(username, password); err == nil {
+	if userID, err := models.RegisterNewUser(username, password); err == nil {
 		// If the user is created, set the token in a cookie and log the user in
-		token := GenerateSessionToken()
-		c.SetCookie("token", token, 3600, "", "", false, true)
+		jwtWrapper := JwtWrapper{
+			SecretKey:       os.Getenv("ACCESS_SECRET"),
+			Issuer:          "AuthService",
+			ExpirationHours: 24,
+		}
+
+		token, err := jwtWrapper.GenerateToken(userID, username)
+		if err != nil {
+			log.Panic(err)
+		}
+		c.SetCookie("token", token, 10800, "", "", false, true)
 		c.Set("is_logged_in", true)
-		session.Set("current_user", username)
-		session.Save()
-		log.Println("settin:", username)
 
 		Render(c, gin.H{
 			"title": "Successful registration & Login"}, "login-successful.html")
