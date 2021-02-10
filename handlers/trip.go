@@ -77,8 +77,16 @@ func DeleteTrip(c *gin.Context) {
 	if tripID, err := strconv.Atoi(c.Param("id")); err == nil {
 		// Check if the article exists
 		if trip, err := models.GetTripByID(tripID); err == nil {
-			models.DeleteTripByID(trip.ID)
-			MyTrips(c)
+			// Logged user is the author of deleted trip
+			claims, err := ClaimsUser(c)
+			if err != nil && claims.Username == trip.Author {
+				models.DeleteTripByID(trip.ID)
+				MyTrips(c)
+			} else {
+				c.AbortWithError(http.StatusNotFound, err)
+				log.Println(err)
+			}
+
 		} else {
 			// If the article is not found, abort with an error
 			c.AbortWithError(http.StatusNotFound, err)
@@ -143,12 +151,10 @@ func GetTrip(c *gin.Context) {
 		if trip, err := models.GetTripByIDWithUsers(tripID); err == nil {
 			// Call the render function with the title, article and the name of the
 			// Is logged user joined in current trip?
-			claims, err := ClaimsUser(c)
-
+			claims, err := GetCurrentUser(c)
 			var hasUser bool
 			if err == nil {
 				hasUser = models.TripHasUser(tripID, claims.Username)
-
 			} else {
 				hasUser = false
 			}

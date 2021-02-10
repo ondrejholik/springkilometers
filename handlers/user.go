@@ -96,7 +96,7 @@ func ClaimsUser(c *gin.Context) (*JwtClaim, error) {
 	cookie, err := c.Cookie("token")
 	if err != nil {
 		Render(c, gin.H{
-			"message": err,
+			"message": err.Error(),
 			"title":   "Unauthorized",
 		}, "error.html")
 		return nil, err
@@ -104,11 +104,31 @@ func ClaimsUser(c *gin.Context) (*JwtClaim, error) {
 	claims, err = jwtWrapper.ValidateToken(cookie)
 	if err != nil {
 		Render(c, gin.H{
-			"message": err,
+			"message": err.Error(),
 			"title":   "Unauthorized",
 		}, "error.html")
 		return nil, err
 	}
+	return claims, nil
+}
+
+// GetCurrentUser --
+func GetCurrentUser(c *gin.Context) (*JwtClaim, error) {
+	var claims *JwtClaim
+	jwtWrapper := JwtWrapper{
+		SecretKey: os.Getenv("ACCESS_SECRET"),
+		Issuer:    "AuthService",
+	}
+
+	cookie, err := c.Cookie("token")
+	if err != nil {
+		return nil, err
+	}
+	claims, err = jwtWrapper.ValidateToken(cookie)
+	if err != nil {
+		return nil, err
+	}
+
 	return claims, nil
 }
 
