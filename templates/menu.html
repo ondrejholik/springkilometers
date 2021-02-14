@@ -55,11 +55,20 @@
             Log in
           </a>
         </div>
-        {{end}}
-        {{if .is_logged_in}}
-        <a href="/u/logout" class="button is-primary is-light">
-          Log out
-        </a>
+        {{else}}
+        <div class="navbar-item has-dropdown is-hoverable">
+          <a href="/u/settings" class="navbar-link">
+            <i class="fas fa-user"></i>
+          </a>
+          <div class="navbar-dropdown">
+            <a href="/u/settings" class="navbar-item">
+              <i class="fas fa-cog"></i> Settings
+            </a>
+            <a href="/u/logout" class="navbar-item button is-danger is-light">
+              <i class="fas fa-sign-out-alt"></i> Log out
+            </a>
+          </div>
+        </div>
         {{end}}
       </div>
     </div>
