@@ -46,8 +46,10 @@ func initializeRoutes() {
 
 		userRoutes.GET("/trips", mid.EnsureLoggedIn(), handlers.MyTrips)
 
+		userRoutes.GET("/settings", mid.EnsureLoggedIn(), handlers.ShowSettings)
+		userRoutes.POST("/settings", mid.EnsureLoggedIn(), handlers.SettingsUpdate)
+
 		userRoutes.GET("/view/:id", handlers.ShowUser)
-		userRoutes.GET("/username/:username", handlers.ShowUserByUsername)
 	}
 
 	tripRoutes := router.Group("/trip")
