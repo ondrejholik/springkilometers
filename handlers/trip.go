@@ -79,7 +79,7 @@ func DeleteTrip(c *gin.Context) {
 		if trip, err := models.GetTripByID(tripID); err == nil {
 			// Logged user is the author of deleted trip
 			claims, err := ClaimsUser(c)
-			if err != nil && claims.Username == trip.Author {
+			if err != nil && claims.UserID == trip.AuthorID {
 				models.DeleteTripByID(trip.ID)
 				MyTrips(c)
 			} else {
@@ -127,7 +127,7 @@ func UpdateTrip(c *gin.Context) {
 		claims, err := ClaimsUser(c)
 		if err == nil {
 
-			if _, err := models.UpdateTrip(tripID, claims.Username, name, content, kilometersCount, withbike); err == nil {
+			if _, err := models.UpdateTrip(tripID, claims.UserID, name, content, kilometersCount, withbike); err == nil {
 				MyTrips(c)
 			} else {
 				// if there was an error while creating the article, abort with an error
@@ -223,11 +223,14 @@ func CreateTrip(c *gin.Context) {
 	// Get gpx file name
 
 	if claims, err := ClaimsUser(c); err == nil {
-
+		user, err := models.GetUserByID(claims.UserID)
+		if err != nil {
+			c.AbortWithError(404, err)
+		}
 		if withgpx {
 			filename := fmt.Sprintf("/static/gpx/%s.gpx", gpxname)
 
-			if newtrip, err = models.CreateNewTrip(claims.Username, name, content, kilometersCount, withbike, filename, ""); err == nil {
+			if newtrip, err = models.CreateNewTrip(*user, name, content, kilometersCount, withbike, filename, ""); err == nil {
 				// If the article is created successfully, show success message
 				MyTripsSuccess(c)
 				saveGpx(newtrip.ID, gpxname, gpxfile)
@@ -249,7 +252,7 @@ func CreateTrip(c *gin.Context) {
 				}
 			}
 
-			if newtrip, err = models.CreateNewTrip(claims.Username, name, content, kilometersCount, withbike, "", mapycz); err == nil {
+			if newtrip, err = models.CreateNewTrip(*user, name, content, kilometersCount, withbike, "", mapycz); err == nil {
 				// If the article is created successfully, show success message
 				MyTripsSuccess(c)
 
