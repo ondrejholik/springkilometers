@@ -79,7 +79,7 @@ func DeleteTrip(c *gin.Context) {
 		if trip, err := models.GetTripByID(tripID); err == nil {
 			// Logged user is the author of deleted trip
 			claims, err := ClaimsUser(c)
-			if err != nil && claims.UserID == trip.AuthorID {
+			if err == nil && claims.UserID == trip.AuthorID {
 				models.DeleteTripByID(trip.ID)
 				MyTrips(c)
 			} else {
