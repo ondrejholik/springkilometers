@@ -18,6 +18,7 @@ import (
 type User struct {
 	ID         int       `json:"id"`
 	Username   string    `json:"username"`
+	Avatar     string    `json:"avatar"`
 	Password   string    `json:"password"`
 	Salt       string    `json:"salt"	`
 	CreatedOn  time.Time `json:"created_on"`
@@ -31,6 +32,7 @@ type User struct {
 type UserPage struct {
 	ID        int       `json:"id"`
 	Username  string    `json:"username"`
+	Avatar    string    `json:"avatar"`
 	CreatedOn time.Time `json:"created_on"`
 	Trips     []Trip    `gorm:"many2many:user_trip;"`
 	Km        float64   `json:"km"`
@@ -43,6 +45,7 @@ type UserPage struct {
 type Result struct {
 	ID        int
 	Username  string
+	Avatar    string
 	Km        float64
 	Avgkm     float64
 	Tripcount int
@@ -51,7 +54,7 @@ type Result struct {
 // GetUsersScore --
 func GetUsersScore() []Result {
 	var result []Result
-	db.Table("users").Select("users.id, users.username, SUM(trips.km) as km").Joins("JOIN user_trip ON users.id = user_trip.user_id").Joins("JOIN trips ON user_trip.trip_id = trips.id").Group("users.id, users.username").Order("km desc").Scan(&result)
+	db.Table("users").Select("users.id, users.username, users.avatar, SUM(trips.km) as km").Joins("JOIN user_trip ON users.id = user_trip.user_id").Joins("JOIN trips ON user_trip.trip_id = trips.id").Group("users.id, users.username").Order("km desc").Scan(&result)
 	return result
 }
 
@@ -67,7 +70,7 @@ func GetUserPage(id int) UserPage {
 	var userpage UserPage
 	var result Result
 	var user User
-	db.Table("users").Select("users.id, users.username, AVG(trips.km) as avgkm, SUM(trips.km) as km, COUNT(trips.id) as tripcount").Joins("JOIN user_trip ON users.id = user_trip.user_id").Joins("JOIN trips ON user_trip.trip_id = trips.id").Group("users.id, users.username").First(&result, id)
+	db.Table("users").Select("users.id, users.avatar, users.username, AVG(trips.km) as avgkm, SUM(trips.km) as km, COUNT(trips.id) as tripcount").Joins("JOIN user_trip ON users.id = user_trip.user_id").Joins("JOIN trips ON user_trip.trip_id = trips.id").Group("users.id, users.username").First(&result, id)
 	db.Table("users").Select("SUM(trips.km) as kmbike").Joins("JOIN user_trip ON users.id = user_trip.user_id").Joins("JOIN trips ON user_trip.trip_id = trips.id").Where("trips.withbike = ?", true).Group("users.id").First(&userpage, id)
 	//db.Table("users").Select("users.id, users.username, trips.*").Joins("JOIN user_trip ON users.id = user_trip.user_id").Joins("JOIN trips ON user_trip.trip_id = trips.id").First(&userpage, id)
 	db.Preload("Trips", func(db *gorm.DB) *gorm.DB {
@@ -76,12 +79,24 @@ func GetUserPage(id int) UserPage {
 
 	userpage.Km = result.Km
 	userpage.AvgKm = result.Avgkm
+	userpage.Avatar = result.Avatar
 	userpage.Kmwalk = userpage.Km - userpage.Kmbike
 	userpage.Trips = user.Trips
 	userpage.ID = user.ID
 	userpage.Username = user.Username
 
 	return userpage
+}
+
+// GetUserByID --
+func GetUserByID(userID int) (*User, error) {
+	var user User
+	err := db.Table("users").Select("*").Where("users.id = ?", userID).First(&user).Error
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
+
 }
 
 // GetUserByUsername --
@@ -156,7 +171,7 @@ func RegisterNewUser(username, password string) (int, error) {
 	salt := salting(10)
 	pass := crypting(password + salt)
 
-	user = User{Username: username, Password: pass, Salt: salt}
+	user = User{Username: username, Password: pass, Salt: salt, Avatar: username}
 	result := db.Create(&user) // pass pointer of data to Create
 	if result.Error != nil {
 		return -1, result.Error
@@ -176,4 +191,13 @@ func isUsernameAvailable(username string) bool {
 		return false
 	}
 	return true
+}
+
+// UpdateSettings --
+func UpdateSettings(userID int, avatar string) error {
+	err := db.Table("users").Where("id = ?", userID).Update("avatar", avatar)
+	if err != nil {
+		return err.Error
+	}
+	return nil
 }
