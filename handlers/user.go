@@ -170,25 +170,6 @@ func ShowUser(c *gin.Context) {
 
 }
 
-// ShowUserByUsername --
-func ShowUserByUsername(c *gin.Context) {
-	username := c.Param("username")
-	if id, err := models.GetUserByUsername(username); err == nil {
-		userpage := models.GetUserPage(id)
-		Render(c, gin.H{
-			"title":   "User",
-			"payload": userpage,
-		}, "user.html")
-	} else {
-		c.AbortWithStatus(http.StatusNotFound)
-		err := Err{Code: 404, Message: "Not found"}
-		Render(c, gin.H{
-			"message": err,
-			"title":   "404 Not found",
-		}, "error.html")
-	}
-}
-
 // ShowLoginPage --
 func ShowLoginPage(c *gin.Context) {
 	// Call the render function with the name of the template to render
@@ -201,7 +182,7 @@ func ShowLoginPage(c *gin.Context) {
 func MyTrips(c *gin.Context) {
 	if claims, err := ClaimsUser(c); err == nil {
 		log.Printf("%+v", claims)
-		result := models.GetUserTrips(claims.Username)
+		result := models.GetUserTrips(claims.UserID)
 		Render(c, gin.H{
 			"title":   "My trips",
 			"payload": result}, "user-trips.html")
@@ -211,7 +192,7 @@ func MyTrips(c *gin.Context) {
 // MyTripsSuccess --
 func MyTripsSuccess(c *gin.Context) {
 	if claims, err := ClaimsUser(c); err == nil {
-		result := models.GetUserTrips(claims.Username)
+		result := models.GetUserTrips(claims.UserID)
 		Render(c, gin.H{
 			"title":   "Trip successfuly added",
 			"payload": result}, "user-trips-success.html")
@@ -268,10 +249,9 @@ func DisjoinTrip(c *gin.Context) {
 	if tripID, err := strconv.Atoi(c.Param("id")); err == nil {
 		// Check if the article exists
 		if trip, err := models.GetTripByID(tripID); err == nil {
-			// TODO: replace with ID
 			claims, err := ClaimsUser(c)
 			if err == nil {
-
+				// TODO: replace with ID
 				models.UserDisjoinsTrip(claims.Username, *trip)
 				models.TripDisjoinsUser(claims.Username, *trip)
 				trip, _ = models.GetTripByIDWithUsers(tripID)
@@ -325,7 +305,7 @@ func PerformLogin(c *gin.Context) {
 			log.Panic(err)
 		}
 
-		c.SetCookie("token", token, 10800, "", "", false, true)
+		c.SetCookie("token", token, 108000, "", "", false, true)
 		c.Set("is_logged_in", true)
 
 		Render(c, gin.H{
@@ -387,8 +367,51 @@ func Register(c *gin.Context) {
 		c.HTML(http.StatusBadRequest, "register.html", gin.H{
 			"ErrorTitle":   "Registration Failed",
 			"ErrorMessage": err.Error()})
-
 	}
+}
+
+// ShowSettings --
+func ShowSettings(c *gin.Context) {
+	claims, err := ClaimsUser(c)
+	if err != nil {
+		// TODO: error page
+		log.Panic(err)
+	}
+	user, err := models.GetUserByID(claims.UserID)
+	log.Println(user.Avatar)
+	if err == nil {
+		Render(c, gin.H{
+			"payload": user,
+			"title":   "Settings",
+		}, "user-settings.html")
+	}
+}
+
+// SettingsUpdate --
+func SettingsUpdate(c *gin.Context) {
+	// User can set
+	// - profile picture
+	//
+	// -----NICE-TO-HAVE----------
+	// - password
+	// - room / group
+
+	avatar := c.PostForm("avatar_input")
+	claims, err := ClaimsUser(c)
+	if err == nil {
+
+		if err := models.UpdateSettings(claims.UserID, avatar); err == nil {
+			ShowSettings(c)
+		} else {
+			// if there was an error while creating the article, abort with an error
+			c.AbortWithStatus(http.StatusBadRequest)
+		}
+	} else {
+		// If an invalid article ID is specified in the URL, abort with an error
+		c.AbortWithStatus(http.StatusNotFound)
+		log.Println(err)
+	}
+
 }
 
 // Render one of HTML, JSON or CSV based on the 'Accept' header of the request
