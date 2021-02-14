@@ -1,0 +1,38 @@
+<!--index.html-->
+
+<!--Embed the header.html template at this location-->
+{{ template "header.html" .}}
+
+<div class="column is-half  is-offset-one-quarter has-text-centered">
+    <div class="level">
+        <div class="level-item">
+            <figure class="image is-128x128 ">
+                <img id="avatar" class="is-rounded" src="https://avatars.dicebear.com/4.5/api/avataaars/{{.payload.Avatar}}.svg"
+                    alt="profile picture">
+            </figure>
+        </div>
+    </div>
+    <div class="field">
+        <form action="/u/settings" method="POST">
+            <label class="label">Avatar</label>
+            <div class="control">
+                <input class="input" id="avatar_input" name="avatar_input" type="text" placeholder="Avatar" value="{{.payload.Avatar}}"
+                    required="required" >
+            </div>
+            <div class="control">
+                <button class="button is-primary">Submit</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    let avatar_input = document.querySelector('#avatar_input');
+    let avatar = document.querySelector('#avatar');
+    avatar_input.addEventListener('keyup', function () {
+        avatar.setAttribute("src", "https://avatars.dicebear.com/4.5/api/avataaars/" + this.value + ".svg");
+    });
+
+</script>
+<!--Embed the footer.html template at this location-->
+{{ template "footer.html" .}}
