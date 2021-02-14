@@ -17,7 +17,6 @@ type Trip struct {
 	Withbike bool    `json:"withbike"`
 	Content  string  `json:"content"`
 	Km       float64 `json:"km"`
-	Author   string  `json:"author"`
 	Mapycz   string  `json:"mapycz"`
 
 	Tiny   string `json:"tiny"`
@@ -33,7 +32,8 @@ type Trip struct {
 	Hour      int   `json:"hour"`
 	Minute    int   `json:"minute"`
 
-	Users []User `gorm:"many2many:user_trip;"`
+	AuthorID int    `json:"author_id"`
+	Users    []User `gorm:"many2many:user_trip;"`
 
 	CreatedOn  time.Time `json:"created_on"`
 	DeletedOn  time.Time `json:"deleted_on"`
@@ -41,18 +41,42 @@ type Trip struct {
 	UpdatedOn  time.Time `json:"updated_on"`
 }
 
+// TripAll for view showTrips
+type TripAll struct {
+	ID       int     `json:"id"`
+	Name     string  `json:"name"`
+	Withbike bool    `json:"withbike"`
+	Content  string  `json:"content"`
+	Km       float64 `json:"km"`
+	Avatar   string  `json:"avatar"`
+	Username string  `json:"username"`
+
+	Medium string `json:"medium"`
+	Small  string `json:"small"`
+
+	Timestamp int64 `json:"timestamp"`
+	Year      int   `json:"year"`
+	Month     int   `json:"month"`
+	Day       int   `json:"day"`
+	Hour      int   `json:"hour"`
+	Minute    int   `json:"minute"`
+
+	AuthorID int `json:"author_id"`
+}
+
 // GetUserTrips --
-func GetUserTrips(username string) []Trip {
+func GetUserTrips(userID int) []Trip {
 	var trips []Trip
-	db.Table("trips").Where("trips.author = ?", username).Order("timestamp desc").Scan(&trips)
+	db.Table("trips").Where("trips.author_id = ?", userID).Order("timestamp desc").Scan(&trips)
 	return trips
 }
 
 // GetTrips --
 // All trips with users sorted by date
-func GetTrips() []Trip {
-	var trips []Trip
-	result := db.Order("timestamp desc").Find(&trips)
+func GetTrips() []TripAll {
+	var trips []TripAll
+	result := db.Table("trips").Joins("left join users on users.id = author_id").Order("timestamp desc").Select("users.ID as author_id, trips.*, users.Username, users.Avatar").Scan(&trips)
+	log.Printf("%+v\n", trips)
 
 	if result.Error != nil {
 		log.Panic(result.Error)
@@ -132,10 +156,10 @@ func TripDisjoinsUser(username string, trip Trip) {
 	db.Model(&trip).Association("Users").Delete(&user)
 }
 
-func tripBelongsToUsername(tripID int, username string) bool {
+func tripBelongsToUsername(tripID int, userID int) bool {
 	var trip Trip
 	db.Where("id = ?", tripID).First(&trip)
-	return trip.Author == username
+	return trip.AuthorID == userID
 }
 
 func getDate() (int, int, int, int, int) {
@@ -150,7 +174,7 @@ func getDate() (int, int, int, int, int) {
 }
 
 // CreateNewTrip trip with all users
-func CreateNewTrip(username, name, content, kilometersCount, withbike, gpxname, mapycz string) (*Trip, error) {
+func CreateNewTrip(user User, name, content, kilometersCount, withbike, gpxname, mapycz string) (*Trip, error) {
 	kmc, err := strconv.ParseFloat(kilometersCount, 64)
 	if err != nil {
 		log.Println(err)
@@ -164,7 +188,7 @@ func CreateNewTrip(username, name, content, kilometersCount, withbike, gpxname, 
 		Content:   content,
 		Km:        kmc,
 		Withbike:  withbike == "on",
-		Author:    username,
+		AuthorID:  user.ID,
 		Tiny:      "/static/default/tiny.webp",
 		Small:     "/static/default/small.webp",
 		Medium:    "/static/default/medium.webp",
@@ -186,13 +210,13 @@ func CreateNewTrip(username, name, content, kilometersCount, withbike, gpxname, 
 	}
 
 	// User, who created trip also "join" trip
-	TripJoinsUser(username, newTrip)
+	TripJoinsUser(user.Username, newTrip)
 
 	return &newTrip, nil
 }
 
 // UpdateTrip --
-func UpdateTrip(id int, username, name, content, kilometersCount, withbike string) (*Trip, error) {
+func UpdateTrip(id, userID int, name, content, kilometersCount, withbike string) (*Trip, error) {
 	kmc, err := strconv.ParseFloat(kilometersCount, 64)
 	if err != nil {
 		log.Println(err)
@@ -211,7 +235,7 @@ func UpdateTrip(id int, username, name, content, kilometersCount, withbike strin
 	trip.Km = kmc
 	trip.Withbike = wb
 
-	if !tripBelongsToUsername(id, username) {
+	if !tripBelongsToUsername(id, userID) {
 		err := errors.New("Username does not belong to trip")
 		return nil, err
 	}
