@@ -49,8 +49,18 @@
                 <td>AVG KM on Trip</td>
                 <td>{{ printf "%.2f" .payload.AvgKm}}</td>
             </tr>
+            <tr>
+                <td>Villages count</td>
+                <td>{{.payload.VillagesCount}}</td>
+            </tr>
+            <tr>
+                <td>Trip count</td>
+                <td>{{.payload.TripCount}}</td>
+            </tr>
         </tbody>
     </table>
+
+    
 
 
 
@@ -66,18 +76,29 @@
             </div>
             <div class="media-content">
                 <div class="content">
-                   <div class="level">
-            <div class="level-left">
-              <span class="tag is-primary is-normal is-rounded ml-1">{{.Km}} km</span>
-              {{if .Withbike}}
-              <span class="tag is-info is-normal is-rounded ml-1"><i class="fas fa-bicycle"></i></span>
-              {{end}}
-              <a href="/trip/view/{{.ID}}"><strong class="title is-5 ml-1">{{.Name}}</strong></a>
-            </div>
-          </div> 
+                    <div class="level">
+                        <div class="level-left">
+                            <span class="tag is-primary is-normal is-rounded ml-1">{{.Km}} km</span>
+                            {{if .Withbike}}
+                            <span class="tag is-info is-normal is-rounded ml-1"><i class="fas fa-bicycle"></i></span>
+                            {{end}}
+                            <a href="/trip/view/{{.ID}}"><strong class="title is-5 ml-1">{{.Name}}</strong></a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </article>
+    </div>
+    {{end}}
+    {{if eq .payload.VillagesCount 0 }}
+    {{else}}
+    <h1 class="title is-4 mt-4">Villages</h1>
+    <div class="columns is-multiline">
+        {{range .payload.Villages}}
+        <div class="column is-narrow">
+            <span class="tag is-info is-light is-large">{{.Village}}</span>
+        </div>
+        {{end}}
     </div>
     {{end}}
 </div>
