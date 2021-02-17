@@ -22,6 +22,7 @@ require (
 	github.com/otiai10/opengraph/v2 v2.0.2
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/shopspring/decimal v0.0.0-20200419222939-1884f454f8ea // indirect
+	github.com/tkrajina/gpxgo v1.0.1
 	golang.org/x/crypto v0.0.0-20201016220609-9e8e0b390897
 	golang.org/x/image v0.0.0-20201208152932-35266b937fa6
 	golang.org/x/text v0.3.4 // indirect
