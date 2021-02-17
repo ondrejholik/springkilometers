@@ -122,6 +122,14 @@
     
     {{end}}
     {{else}}
+    <h1 class="title is-4 mt-4">Villages</h1>
+    <div class="columns is-multiline">
+        {{range .payload.Villages}}
+        <div class="column is-narrow">
+            <span class="tag is-info is-light is-large">{{.Village}}</span>
+        </div>
+        {{end}}
+    </div>
     <h1 class="title is-4 mt-4">Route</h1>
     <div id="map" class="box" style="height:350px"></div>
     {{end}}
