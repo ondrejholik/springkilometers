@@ -305,7 +305,7 @@ func PerformLogin(c *gin.Context) {
 			log.Panic(err)
 		}
 
-		c.SetCookie("token", token, 108000, "", "", false, true)
+		c.SetCookie("token", token, 86400, "", "", false, true)
 		c.Set("is_logged_in", true)
 
 		Render(c, gin.H{
