@@ -427,4 +427,5 @@ func saveGpx(tripid int, gpxname string, gpxfile multipart.File) {
 		log.Println(err)
 	}
 
+	go models.AddVillagesToTrip(filename, tripid)
 }

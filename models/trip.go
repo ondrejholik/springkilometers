@@ -32,8 +32,9 @@ type Trip struct {
 	Hour      int   `json:"hour"`
 	Minute    int   `json:"minute"`
 
-	AuthorID int    `json:"author_id"`
-	Users    []User `gorm:"many2many:user_trip;"`
+	AuthorID int       `json:"author_id"`
+	Users    []User    `gorm:"many2many:user_trip;"`
+	Villages []Village `gorm:"many2many:trip_village;"`
 
 	CreatedOn  time.Time `json:"created_on"`
 	DeletedOn  time.Time `json:"deleted_on"`
@@ -106,8 +107,8 @@ func GetTripByID(id int) (*Trip, error) {
 // Return trip given id
 func GetTripByIDWithUsers(id int) (*Trip, error) {
 	var trip Trip
-	err := db.Preload("Users").First(&trip, id).Error
-	if err != nil && err != gorm.ErrRecordNotFound {
+	err := db.Preload("Users").Preload("Villages").First(&trip, id).Error
+	if err != nil {
 		return nil, err
 	}
 
