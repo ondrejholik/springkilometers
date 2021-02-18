@@ -36,12 +36,13 @@ type UserPage struct {
 	CreatedOn     time.Time `json:"created_on"`
 	Trips         []Trip    `gorm:"many2many:user_trip;"`
 	Km            float64   `json:"km"`
-	Kmbike        float64   `json:"kmbike"`
-	Kmwalk        float64   `json:"kmwalk"`
-	AvgKm         float64   `json:"avgkm"`
-	Maxkm         float64   `json:"maxkm"`
-	VillagesCount int       `json:"villages_count`
-	TripCount     int       `json:"trip_count`
+	Km100         float64
+	Kmbike        float64 `json:"kmbike"`
+	Kmwalk        float64 `json:"kmwalk"`
+	AvgKm         float64 `json:"avgkm"`
+	Maxkm         float64 `json:"maxkm"`
+	VillagesCount int     `json:"villages_count`
+	TripCount     int     `json:"trip_count`
 	Achievments   Achievments
 	//Villages      []Village
 	Villages []Village `gorm:"many2many:trip_village;"`
@@ -53,6 +54,7 @@ type Result struct {
 	Username  string
 	Avatar    string
 	Km        float64
+	Km100     float64
 	Avgkm     float64
 	Maxkm     float64
 	Tripcount int
@@ -78,7 +80,18 @@ type Achievments struct {
 // GetUsersScore --
 func GetUsersScore() []Result {
 	var result []Result
+
 	db.Table("users").Select("users.id, users.username, users.avatar, SUM(trips.km) as km").Joins("JOIN user_trip ON users.id = user_trip.user_id").Joins("JOIN trips ON user_trip.trip_id = trips.id").Group("users.id, users.username").Order("km desc").Scan(&result)
+	for i := range result {
+		result[i].Km100 = result[i].Km
+		if result[i].Km > 200 {
+			result[i].Km100 = result[i].Km - 200
+
+		} else if result[i].Km > 100 {
+			result[i].Km100 = result[i].Km - 100
+		}
+
+	}
 	return result
 }
 
@@ -117,6 +130,14 @@ func GetUserPage(id int) UserPage {
 	userpage.Villages = villages
 	userpage.TripCount = result.Tripcount
 	userpage.Maxkm = result.Maxkm
+
+	userpage.Km100 = userpage.Km
+	if userpage.Km > 200 {
+		userpage.Km100 = userpage.Km - 200
+
+	} else if userpage.Km > 100 {
+		userpage.Km100 = userpage.Km - 100
+	}
 
 	achievments.Walker1 = userpage.Km >= 100
 	achievments.Walker2 = userpage.Km >= 200

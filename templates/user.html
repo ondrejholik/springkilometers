@@ -39,9 +39,9 @@
     </div>
     {{if ge .payload.Km 100.0 }}
     {{if ge .payload.Km 200.0 }}
-    <progress class="progress is-warning" value="{{.payload.Km - 200}}" max="300">{{.payload.Km}}%</progress>
+    <progress class="progress is-warning" value="{{.payload.Km100}}" max="100">{{.payload.Km}}%</progress>
     {{else}}
-    <progress class="progress is-success" value="{{.payload.Km - 100}}" max="200">{{.payload.Km}}%</progress>
+    <progress class="progress is-success" value="{{.payload.Km100}}" max="100">{{.payload.Km}}%</progress>
     {{end}}
     {{else}}
     <progress class="progress is-info" value="{{.payload.Km}}" max="100">{{.payload.Km}}%</progress>

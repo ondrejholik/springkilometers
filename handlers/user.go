@@ -143,7 +143,7 @@ func NoRoute(c *gin.Context) {
 func ShowIndexPage(c *gin.Context) {
 	result := models.GetUsersScore()
 	Render(c, gin.H{
-		"title":   "Index",
+		"title":   "Jarní Kilometry 2021",
 		"payload": result}, "index.html")
 }
 
