@@ -39,8 +39,10 @@ type UserPage struct {
 	Kmbike        float64   `json:"kmbike"`
 	Kmwalk        float64   `json:"kmwalk"`
 	AvgKm         float64   `json:"avgkm"`
+	Maxkm         float64   `json:"maxkm"`
 	VillagesCount int       `json:"villages_count`
 	TripCount     int       `json:"trip_count`
+	Achievments   Achievments
 	//Villages      []Village
 	Villages []Village `gorm:"many2many:trip_village;"`
 }
@@ -52,7 +54,25 @@ type Result struct {
 	Avatar    string
 	Km        float64
 	Avgkm     float64
+	Maxkm     float64
 	Tripcount int
+}
+
+// Achievments --
+type Achievments struct {
+	Walker1 bool
+	Walker2 bool
+	Walker3 bool
+
+	Explorer1 bool
+	Explorer2 bool
+	Explorer3 bool
+
+	Challenger1 bool
+	Challenger2 bool
+	Challenger3 bool
+
+	Score int
 }
 
 // GetUsersScore --
@@ -72,10 +92,11 @@ func GetUserPage(id int) UserPage {
 	// ---------------//
 
 	var userpage UserPage
+	var achievments Achievments
 	var result Result
 	var user User
 	var villages []Village
-	db.Table("users").Select("users.id, users.avatar, users.username, AVG(trips.km) as avgkm, SUM(trips.km) as km, COUNT(trips.id) as tripcount").Joins("JOIN user_trip ON users.id = user_trip.user_id").Joins("JOIN trips ON user_trip.trip_id = trips.id").Group("users.id, users.username").First(&result, id)
+	db.Table("users").Select("users.id, users.avatar, users.username, AVG(trips.km) as avgkm, SUM(trips.km) as km, COUNT(trips.id) as tripcount, MAX(trips.km) as maxkm").Joins("JOIN user_trip ON users.id = user_trip.user_id").Joins("JOIN trips ON user_trip.trip_id = trips.id").Group("users.id, users.username").First(&result, id)
 	db.Table("users").Select("SUM(trips.km) as kmbike").Joins("JOIN user_trip ON users.id = user_trip.user_id").Joins("JOIN trips ON user_trip.trip_id = trips.id").Where("trips.withbike = ?", true).Group("users.id").First(&userpage, id)
 	//db.Table("users").Select("users.id, users.username, trips.*").Joins("JOIN user_trip ON users.id = user_trip.user_id").Joins("JOIN trips ON user_trip.trip_id = trips.id").First(&userpage, id)
 	db.Preload("Trips", func(db *gorm.DB) *gorm.DB {
@@ -95,6 +116,34 @@ func GetUserPage(id int) UserPage {
 	userpage.VillagesCount = len(villages)
 	userpage.Villages = villages
 	userpage.TripCount = result.Tripcount
+	userpage.Maxkm = result.Maxkm
+
+	achievments.Walker1 = userpage.Km >= 100
+	achievments.Walker2 = userpage.Km >= 200
+	achievments.Walker3 = userpage.Km >= 300
+
+	achievments.Explorer1 = len(villages) >= 5
+	achievments.Explorer2 = len(villages) >= 10
+	achievments.Explorer3 = len(villages) >= 15
+
+	achievments.Challenger1 = userpage.Maxkm >= 10
+	achievments.Challenger2 = userpage.Maxkm >= 20
+	achievments.Challenger3 = userpage.Maxkm >= 30
+
+	achievments.Score = 0
+	if achievments.Walker1 && achievments.Walker2 && achievments.Walker3 {
+		achievments.Score++
+	}
+
+	if achievments.Explorer1 && achievments.Explorer2 && achievments.Explorer3 {
+		achievments.Score++
+	}
+
+	if achievments.Challenger1 && achievments.Challenger2 && achievments.Challenger3 {
+		achievments.Score++
+	}
+
+	userpage.Achievments = achievments
 
 	return userpage
 }

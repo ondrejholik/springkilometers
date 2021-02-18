@@ -9,10 +9,11 @@
     <article class="media">
       <div class="media-left">
         <a href="/u/view/{{.ID}}">
-        <figure class="image is-64x64">
-          <img class="is-rounded" src="https://avatars.dicebear.com/4.5/api/avataaars/{{.Avatar}}.svg" alt="Image">
-        </figure>
+          <figure class="image is-64x64">
+            <img class="is-rounded" src="https://avatars.dicebear.com/4.5/api/avataaars/{{.Avatar}}.svg" alt="Image">
+          </figure>
         </a>
+        
       </div>
       <div class="media-content">
         <div class="content">
@@ -22,8 +23,13 @@
             </div>
             <div class="level-right ">
               {{if ge .Km 100.0 }}
+              {{if ge .Km 200.0 }}
+              <span class="tag is-warning ml-2">{{ printf "%.1f" .Km}} km</span>
+              <span class="tag is-warning is-light is-medium ml-2"><i class="fas fa-award"></i></span>
+              {{else}}
               <span class="tag is-success ml-2">{{ printf "%.1f" .Km}} km</span>
               <span class="tag is-warning is-light is-medium ml-2"><i class="fas fa-award"></i></span>
+              {{end}}
               {{ else}}
               <span class="tag is-info ml-2">{{printf "%.1f" .Km}} km</span>
               {{end}}
@@ -31,11 +37,15 @@
           </div>
 
         </div>
-        
+
         {{if ge .Km 100.0 }}
-        <progress class="progress is-success" value="{{.Km}}" max="100">{{.Km}}%</progress>
+        {{if ge .Km 200.0 }}
+        <progress class="progress is-warning" value="{{.Km}}" max="300">{{printf "%.1f" .Km}}%</progress>
         {{else}}
-        <progress class="progress is-info" value="{{.Km}}" max="100">{{.Km}}%</progress>
+        <progress class="progress is-success" value="{{.Km}}" max="200">{{printf "%.1f" .Km}}%</progress>
+        {{end}}
+        {{else}}
+        <progress class="progress is-info" value="{{.Km}}" max="100">{{printf "%.1f" .Km}}%</progress>
         {{end}}
       </div>
     </article>
