@@ -20,6 +20,7 @@ import (
 
 	"github.com/disintegration/imageorient"
 	"github.com/gin-gonic/gin"
+	cache "github.com/go-redis/cache/v8"
 	"github.com/muesli/smartcrop"
 	"github.com/muesli/smartcrop/nfnt"
 	"github.com/nfnt/resize"
@@ -75,7 +76,9 @@ func ShowTripUpdatePage(c *gin.Context) {
 func DeleteTrip(c *gin.Context) {
 	// Call the render function with the name of the template to render
 	if tripID, err := strconv.Atoi(c.Param("id")); err == nil {
-		// Check if the article exists
+		// Check if the trip exists
+		models.MyCache.Delete(models.Ctx, "trip:"+strconv.Itoa(tripID))
+
 		if trip, err := models.GetTripByID(tripID); err == nil {
 			// Logged user is the author of deleted trip
 			claims, err := ClaimsUser(c)
@@ -118,7 +121,9 @@ func getFileName(filename string) string {
 func UpdateTrip(c *gin.Context) {
 
 	if tripID, err := strconv.Atoi(c.Param("id")); err == nil {
-		// Check if the article exists
+		// Check if the trip exists
+		models.MyCache.Delete(models.Ctx, "trip:"+strconv.Itoa(tripID))
+
 		name := c.PostForm("name")
 		content := c.PostForm("content")
 		kilometersCount := c.PostForm("km")
@@ -128,6 +133,7 @@ func UpdateTrip(c *gin.Context) {
 		if err == nil {
 
 			if _, err := models.UpdateTrip(tripID, claims.UserID, name, content, kilometersCount, withbike); err == nil {
+				models.MyCache.Delete(models.Ctx, "user:"+strconv.Itoa(claims.UserID))
 				MyTrips(c)
 			} else {
 				// if there was an error while creating the article, abort with an error
@@ -147,35 +153,41 @@ func UpdateTrip(c *gin.Context) {
 func GetTrip(c *gin.Context) {
 	// Check if the article ID is valid
 	if tripID, err := strconv.Atoi(c.Param("id")); err == nil {
-		// Check if the article exists
-		if trip, err := models.GetTripByIDWithUsers(tripID); err == nil {
-			// Call the render function with the title, article and the name of the
-			// Is logged user joined in current trip?
-			claims, err := GetCurrentUser(c)
-			var hasUser bool
-			if err == nil {
-				hasUser = models.TripHasUser(tripID, claims.Username)
-			} else {
-				hasUser = false
+		// Check if the trip exists
+
+		var trip *models.Trip
+
+		if err := models.MyCache.Get(models.Ctx, "trip:"+c.Param("id"), &trip); err != nil {
+			trip, err = models.GetTripByIDWithUsers(tripID)
+			if err != nil {
+				// If an invalid article ID is specified in the URL, abort with an error
+				c.AbortWithStatus(http.StatusNotFound)
+				log.Println(err)
 			}
 
-			// template
-			Render(c, gin.H{
-				"title":    trip.Name,
-				"message":  "",
-				"isjoined": hasUser,
-				"payload":  trip}, "trip.html")
-
+			go models.MyCache.Set(&cache.Item{
+				Ctx:   models.Ctx,
+				Key:   "trip:" + c.Param("id"),
+				Value: trip,
+				TTL:   time.Hour,
+			})
+		}
+		// Is logged user joined in current trip
+		claims, err := GetCurrentUser(c)
+		var hasUser bool
+		if err == nil {
+			hasUser = models.TripHasUser(tripID, claims.Username)
 		} else {
-			// If the article is not found, abort with an error
-			c.AbortWithError(http.StatusNotFound, err)
-			log.Println(err)
+			hasUser = false
 		}
 
-	} else {
-		// If an invalid article ID is specified in the URL, abort with an error
-		c.AbortWithStatus(http.StatusNotFound)
-		log.Println(err)
+		// template
+		Render(c, gin.H{
+			"title":    trip.Name,
+			"message":  "",
+			"isjoined": hasUser,
+			"payload":  trip}, "trip.html")
+
 	}
 }
 
@@ -224,6 +236,7 @@ func CreateTrip(c *gin.Context) {
 
 	if claims, err := ClaimsUser(c); err == nil {
 		user, err := models.GetUserByID(claims.UserID)
+		models.MyCache.Delete(models.Ctx, "user:"+strconv.Itoa(claims.UserID))
 		if err != nil {
 			c.AbortWithError(404, err)
 		}

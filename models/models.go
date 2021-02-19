@@ -1,15 +1,24 @@
 package springkilometers
 
 import (
+	"context"
 	"log"
 	"os"
 
+	"github.com/go-redis/cache/v8"
+	"github.com/go-redis/redis/v8"
 	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
 var db *gorm.DB
+
+// MyCache --
+var MyCache *cache.Cache
+
+// Ctx --
+var Ctx context.Context
 
 // Model --
 type Model struct {
@@ -36,6 +45,19 @@ func Setup() {
 	if err != nil {
 		log.Fatalf("models.Setup err: %v", err)
 	}
+
+	rdb := redis.NewClient(&redis.Options{
+		Addr:     "localhost:6379",
+		Password: "", // no password set
+		DB:       0,  // use default DB
+	})
+
+	MyCache = cache.New(&cache.Options{
+		Redis: rdb,
+		//LocalCache: cache.NewTinyLFU(1000, time.Minute),
+	})
+
+	Ctx = context.Background()
 
 	/*
 		gorm.DefaultTableNameHandler = func(db *gorm.DB, defaultTableName string) string {

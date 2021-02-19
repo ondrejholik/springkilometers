@@ -11,6 +11,10 @@ require (
 	github.com/gin-gonic/contrib v0.0.0-20201101042839-6a891bf89f19
 	github.com/gin-gonic/gin v1.6.3
 	github.com/go-ini/ini v1.62.0
+	github.com/go-redis/cache v6.4.0+incompatible
+	github.com/go-redis/cache/v8 v8.3.1
+	github.com/go-redis/redis v6.15.9+incompatible
+	github.com/go-redis/redis/v8 v8.6.0
 	github.com/gorilla/sessions v1.2.1 // indirect
 	github.com/jackc/pgx/v4 v4.10.1 // indirect
 	github.com/joho/godotenv v1.3.0

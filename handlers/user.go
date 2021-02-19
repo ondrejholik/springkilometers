@@ -12,6 +12,7 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
+	cache "github.com/go-redis/cache/v8"
 	models "github.com/ondrejholik/springkilometers/models"
 )
 
@@ -150,9 +151,23 @@ func ShowIndexPage(c *gin.Context) {
 // ShowUser --
 func ShowUser(c *gin.Context) {
 
-	if tripID, err := strconv.Atoi(c.Param("id")); err == nil {
-		// Check if the article exists
-		userpage := models.GetUserPage(tripID)
+	if userID, err := strconv.Atoi(c.Param("id")); err == nil {
+
+		var userpage models.UserPage
+
+		if err := models.MyCache.Get(models.Ctx, "user:"+c.Param("id"), &userpage); err != nil {
+			userpage = models.GetUserPage(userID)
+			if err := models.MyCache.Set(&cache.Item{
+				Ctx:   models.Ctx,
+				Key:   "user:" + c.Param("id"),
+				Value: userpage,
+				TTL:   time.Hour,
+			}); err != nil {
+				panic(err)
+			}
+
+		}
+
 		Render(c, gin.H{
 			"title":   "User",
 			"payload": userpage,
@@ -203,10 +218,13 @@ func MyTripsSuccess(c *gin.Context) {
 func JoinTrip(c *gin.Context) {
 	// Check if the article ID is valid
 	if tripID, err := strconv.Atoi(c.Param("id")); err == nil {
-		// Check if the article exists
+		// Check if the user exists
+
 		if trip, err := models.GetTripByID(tripID); err == nil {
 
 			claims, err := ClaimsUser(c)
+			models.MyCache.Delete(models.Ctx, "user:"+strconv.Itoa(claims.UserID))
+			models.MyCache.Delete(models.Ctx, "trip:"+strconv.Itoa(tripID))
 			if err == nil {
 				hasUser := models.TripHasUser(tripID, claims.Username)
 				models.UserJoinsTrip(claims.Username, *trip)
@@ -247,8 +265,11 @@ func DisjoinTrip(c *gin.Context) {
 	// Check if the article ID is valid
 	if tripID, err := strconv.Atoi(c.Param("id")); err == nil {
 		// Check if the article exists
+
 		if trip, err := models.GetTripByID(tripID); err == nil {
 			claims, err := ClaimsUser(c)
+			models.MyCache.Delete(models.Ctx, "user:"+strconv.Itoa(claims.UserID))
+			models.MyCache.Delete(models.Ctx, "trip:"+strconv.Itoa(tripID))
 			if err == nil {
 				// TODO: replace with ID
 				models.UserDisjoinsTrip(claims.Username, *trip)
@@ -397,6 +418,8 @@ func SettingsUpdate(c *gin.Context) {
 
 	avatar := c.PostForm("avatar_input")
 	claims, err := ClaimsUser(c)
+	models.MyCache.Delete(models.Ctx, "user:"+strconv.Itoa(claims.UserID))
+
 	if err == nil {
 
 		if err := models.UpdateSettings(claims.UserID, avatar); err == nil {
