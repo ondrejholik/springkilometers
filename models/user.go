@@ -117,7 +117,6 @@ func GetUserPage(id int) UserPage {
 	}).First(&user, id)
 
 	db.Raw("select distinct villages.* from users inner join user_trip on user_trip.user_id = users.id inner join trips on trips.id = user_trip.trip_id inner join trip_village on trip_village.trip_id = trips.id inner join villages on villages.id = trip_village.village_id where users.username = ? order by villages.village", user.Username).Find(&villages)
-	log.Println(villages)
 
 	userpage.Km = result.Km
 	userpage.AvgKm = result.Avgkm
@@ -221,7 +220,6 @@ func IsUserValid(username, password string) (int, bool) {
 	db.Where("username = ?", username).First(&user)
 
 	var pass string = crypting(password + user.Salt)
-	log.Println(pass == user.Password)
 
 	return user.ID, pass == user.Password
 }

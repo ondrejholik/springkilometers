@@ -77,8 +77,6 @@ func GetUserTrips(userID int) []Trip {
 func GetTrips() []TripAll {
 	var trips []TripAll
 	result := db.Table("trips").Joins("left join users on users.id = author_id").Order("timestamp desc").Select("users.ID as author_id, trips.*, users.Username, users.Avatar").Scan(&trips)
-	log.Printf("%+v\n", trips)
-
 	if result.Error != nil {
 		log.Panic(result.Error)
 	}
@@ -95,8 +93,6 @@ func GetTripByID(id int) (*Trip, error) {
 		return nil, err
 	}
 
-	log.Println(trip.Name)
-	log.Println(trip.ID)
 	if trip.ID >= 0 {
 		return &trip, nil
 	}
@@ -125,7 +121,6 @@ func TripHasUser(id int, username string) bool {
 	// where users.username = 'o' and trips.id = 349;
 	var count int64
 	db.Table("trips").Joins("INNER JOIN user_trip ON user_trip.trip_id = trips.id").Joins("INNER JOIN users on users.id = user_trip.user_id").Where("users.username = ? and trips.id = ?", username, id).Count(&count)
-	log.Println("Count of user-trip : ", count == 1)
 	return count == 1
 }
 
@@ -225,7 +220,6 @@ func UpdateTrip(id, userID int, name, content, kilometersCount, withbike string)
 	}
 
 	wb := withbike == "on"
-	log.Println("withbike?", wb)
 
 	trip, err := GetTripByID(id)
 	if err != nil {

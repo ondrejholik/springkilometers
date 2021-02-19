@@ -181,7 +181,6 @@ func ShowLoginPage(c *gin.Context) {
 // MyTrips --
 func MyTrips(c *gin.Context) {
 	if claims, err := ClaimsUser(c); err == nil {
-		log.Printf("%+v", claims)
 		result := models.GetUserTrips(claims.UserID)
 		Render(c, gin.H{
 			"title":   "My trips",
