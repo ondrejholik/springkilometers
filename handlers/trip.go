@@ -160,7 +160,6 @@ func GetTrip(c *gin.Context) {
 		if err := models.MyCache.Get(models.Ctx, "trip:"+c.Param("id"), &trip); err != nil {
 			trip, err = models.GetTripByIDWithUsers(tripID)
 			if err != nil {
-				// If an invalid article ID is specified in the URL, abort with an error
 				c.AbortWithStatus(http.StatusNotFound)
 				log.Println(err)
 			}
@@ -174,6 +173,12 @@ func GetTrip(c *gin.Context) {
 		}
 		// Is logged user joined in current trip
 		claims, err := GetCurrentUser(c)
+		var userInfo *models.User = nil
+		if err == nil {
+			userInfo, err = models.GetUserByID(claims.UserID)
+
+		}
+
 		var hasUser bool
 		if err == nil {
 			hasUser = models.TripHasUser(tripID, claims.Username)
@@ -185,6 +190,7 @@ func GetTrip(c *gin.Context) {
 		Render(c, gin.H{
 			"title":    trip.Name,
 			"message":  "",
+			"userinfo": userInfo,
 			"isjoined": hasUser,
 			"payload":  trip}, "trip.html")
 
@@ -420,6 +426,7 @@ func compression(trip models.Trip, file multipart.File, filename, filetype strin
 
 	// Save paths to database
 	models.UpdateTripStruct(trip)
+	models.MyCache.Delete(models.Ctx, "trip:"+strconv.Itoa(trip.ID))
 }
 
 func saveGpx(tripid int, gpxname string, gpxfile multipart.File) {

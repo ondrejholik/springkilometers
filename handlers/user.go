@@ -238,7 +238,6 @@ func JoinTrip(c *gin.Context) {
 			}
 
 		} else {
-			// If the article is not found, abort with an error
 			c.AbortWithError(http.StatusNotFound, err)
 			c.AbortWithStatus(http.StatusNotFound)
 			err := Err{Code: 404, Message: "Not found"}
@@ -249,7 +248,6 @@ func JoinTrip(c *gin.Context) {
 		}
 
 	} else {
-		// If an invalid article ID is specified in the URL, abort with an error
 		c.AbortWithStatus(http.StatusNotFound)
 		c.AbortWithStatus(http.StatusNotFound)
 		err := Err{Code: 404, Message: "Not found"}
@@ -262,9 +260,7 @@ func JoinTrip(c *gin.Context) {
 
 // DisjoinTrip --
 func DisjoinTrip(c *gin.Context) {
-	// Check if the article ID is valid
 	if tripID, err := strconv.Atoi(c.Param("id")); err == nil {
-		// Check if the article exists
 
 		if trip, err := models.GetTripByID(tripID); err == nil {
 			claims, err := ClaimsUser(c)
@@ -282,7 +278,6 @@ func DisjoinTrip(c *gin.Context) {
 			}
 
 		} else {
-			// If the article is not found, abort with an error
 			c.AbortWithError(http.StatusNotFound, err)
 			c.AbortWithStatus(http.StatusNotFound)
 			err := Err{Code: 404, Message: "Not found"}
@@ -293,7 +288,6 @@ func DisjoinTrip(c *gin.Context) {
 		}
 
 	} else {
-		// If an invalid article ID is specified in the URL, abort with an error
 		c.AbortWithStatus(http.StatusNotFound)
 		c.AbortWithStatus(http.StatusNotFound)
 		err := Err{Code: 404, Message: "Not found"}
