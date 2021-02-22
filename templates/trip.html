@@ -232,7 +232,7 @@
         var userid = "{{.userinfo.ID}}";
         var avatar = "{{.userinfo.Avatar}}";
         var username = "{{.userinfo.Username}}";
-        var url = "ws://" + document.location.host + "/trip/ws/" + tripid;
+        var url = "wss://" + document.location.host + "/trip/ws/" + tripid;
         var ws = new WebSocket(url);
 
         var chat = document.getElementById("chat");
