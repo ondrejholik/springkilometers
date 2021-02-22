@@ -59,6 +59,8 @@ func Setup() {
 
 	Ctx = context.Background()
 
+	go Hub.run()
+
 	/*
 		gorm.DefaultTableNameHandler = func(db *gorm.DB, defaultTableName string) string {
 			return setting.DatabaseSetting.TablePrefix + defaultTableName

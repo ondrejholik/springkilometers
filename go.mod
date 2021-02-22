@@ -16,6 +16,7 @@ require (
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/go-redis/redis/v8 v8.6.0
 	github.com/gorilla/sessions v1.2.1 // indirect
+	github.com/gorilla/websocket v1.4.2
 	github.com/jackc/pgx/v4 v4.10.1 // indirect
 	github.com/joho/godotenv v1.3.0
 	github.com/lib/pq v1.4.0 // indirect
@@ -31,6 +32,7 @@ require (
 	golang.org/x/image v0.0.0-20201208152932-35266b937fa6
 	golang.org/x/text v0.3.4 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
+	gopkg.in/olahol/melody.v1 v1.0.0-20170518105555-d52139073376
 	gorm.io/driver/postgres v1.0.6
 	gorm.io/gorm v1.20.11
 )

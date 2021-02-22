@@ -4,178 +4,301 @@
 <html>
 
 <head>
-  <!--Use the `title` variable to set the title of the page-->
-  <title>{{ .title }}</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta charset="UTF-8">
-  <meta property="og:title" content="{{.payload.Name}}({{.payload.Km}}km)">
-  <meta property="og:description" content="{{.payload.Content}}" /> 
-  <meta property="og:site_name" content="Spring kilometers">
-  <meta property="og:image:secure" content="https://jarnikilometry.ddns.net{{.payload.Medium}}">
+    <!--Use the `title` variable to set the title of the page-->
+    <title>{{ .title }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
+    <meta property="og:title" content="{{.payload.Name}} • {{.payload.Km}}km">
+    <meta property="og:description" content="{{.payload.Content}}" />
+    <meta property="og:site_name" content="Spring kilometers" />
+    <meta property="og:image:secure" content="https://jarnikilometry.ddns.net{{.payload.Medium}}" />
+    <meta property="og:image" content="https://jarnikilometry.ddns.net{{.payload.Medium}}" />
+    <link rel="image_src" content="https://jarnikilometry.ddns.net{{.payload.Medium}}" />
 
-  <link rel="stylesheet" href="/static/assets/font-awesome.min.css">
-  <link rel="stylesheet" href="/static/assets/mybulma.min.css">
-  <link rel="icon" type="image/png" href="/static/assets/favicon.ico" />
-  <script defer src="/static/assets/all.js" async></script>
-  <script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload@17.3.1/dist/lazyload.min.js"></script>
-  <script>
-    var lazyLoadInstance = new LazyLoad({
-      // Your custom settings go here
-    });
-
-    document.addEventListener('DOMContentLoaded', () => {
-
-      // Get all "navbar-burger" elements
-      const $navbarBurgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);
-
-      // Check if there are any navbar burgers
-      if ($navbarBurgers.length > 0) {
-
-        // Add a click event on each of them
-        $navbarBurgers.forEach(el => {
-          el.addEventListener('click', () => {
-
-            // Get the target from the "data-target" attribute
-            const target = el.dataset.target;
-            const $target = document.getElementById(target);
-
-            // Toggle the "is-active" class on both the "navbar-burger" and the "navbar-menu"
-            el.classList.toggle('is-active');
-            $target.classList.toggle('is-active');
-
-          });
+    <link rel="stylesheet" href="/static/assets/font-awesome.min.css">
+    <link rel="stylesheet" href="/static/assets/mybulma.min.css">
+    <link rel="icon" type="image/png" href="/static/assets/favicon.ico" />
+    <script defer src="/static/assets/all.js" async></script>
+    <script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload@17.3.1/dist/lazyload.min.js"></script>
+    <script>
+        var lazyLoadInstance = new LazyLoad({
+            // Your custom settings go here
         });
-      }
 
-    });
-  </script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // Get all "navbar-burger" elements
+            const $navbarBurgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);
+
+            // Check if there are any navbar burgers
+            if ($navbarBurgers.length > 0) {
+
+                // Add a click event on each of them
+                $navbarBurgers.forEach(el => {
+                    el.addEventListener('click', () => {
+
+                        // Get the target from the "data-target" attribute
+                        const target = el.dataset.target;
+                        const $target = document.getElementById(target);
+
+                        // Toggle the "is-active" class on both the "navbar-burger" and the "navbar-menu"
+                        el.classList.toggle('is-active');
+                        $target.classList.toggle('is-active');
+
+                    });
+                });
+            }
+
+        });
+    </script>
 </head>
 
 <body>
-  <section class="section">
-    <!--Embed the menu.html template at this location-->
-    {{ template "menu.html" . }}
+    <section class="section">
+        <!--Embed the menu.html template at this location-->
+        {{ template "menu.html" . }}
 
-{{ if eq .message ""}}
-{{else}}
-<div class="notification is-success">
-    {{.message}}
-</div>
-{{end}}
-<div class="column is-half  is-offset-one-quarter ">
-    <h1 class="title is-1">{{.payload.Name}}
-        <span class="tag is-primary is-medium">{{.payload.Km}} km</span>
-        {{ if .payload.Withbike }}
-        <span class="tag is-info is-medium"><i class="fas fa-bicycle"></i></span>
-        {{end}}
-    </h1>
-
-    <figure class="image is-4by3">
-        <img src="{{.payload.Large}}" alt="Placeholder image">
-    </figure>
-    <div class="level has-text-centered">
-        <div class="level-item has-text-centered">
-            <div class="level-item has-text-centered">
-                <span class="tag is-primary is-light is-large">
-                    <i class="fas fa-calendar"></i>
-                    <time class="ml-1"
-                        datetime="{{.payload.Year}}-{{.payload.Month}}-{{.payload.Day}}">{{.payload.Day}}.
-                        {{.payload.Month}}. {{.payload.Year}}</time>
-                </span>
-            </div>
-            <div class="level-item  ml-2">
-                <span class="level-item tag  is-primary is-light is-large">
-                    <i class="fas fa-clock"></i>
-                    <time class="ml-1">{{printf "%02d" .payload.Hour }}:{{printf "%02d" .payload.Minute }}</time>
-                </span>
-            </div>
+        {{ if eq .message ""}}
+        {{else}}
+        <div class="notification is-success">
+            {{.message}}
         </div>
-    </div>
-    {{ if eq .payload.Content ""}}
-    {{else}}
-    <h1 class="title is-4 mt-4">Content</h1>
-    <p class="content block is-medium has-text-justified">{{.payload.Content}}</p>
+        {{end}}
+        <div class="column is-half  is-offset-one-quarter ">
+            <h1 class="title is-1">{{.payload.Name}}
+                <span class="tag is-primary is-medium">{{.payload.Km}} km</span>
+                {{ if .payload.Withbike }}
+                <span class="tag is-info is-medium"><i class="fas fa-bicycle"></i></span>
+                {{end}}
+            </h1>
+
+            <figure class="image is-4by3">
+                <img src="{{.payload.Large}}" alt="Placeholder image">
+            </figure>
+            <div class="level has-text-centered">
+                <div class="level-item has-text-centered">
+                    <div class="level-item has-text-centered">
+                        <span class="tag is-primary is-light is-large">
+                            <i class="fas fa-calendar"></i>
+                            <time class="ml-1"
+                                datetime="{{.payload.Year}}-{{.payload.Month}}-{{.payload.Day}}">{{.payload.Day}}.
+                                {{.payload.Month}}. {{.payload.Year}}</time>
+                        </span>
+                    </div>
+                    <div class="level-item  ml-2">
+                        <span class="level-item tag  is-primary is-light is-large">
+                            <i class="fas fa-clock"></i>
+                            <time class="ml-1">{{printf "%02d" .payload.Hour }}:{{printf "%02d" .payload.Minute}}</time>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            {{ if eq .payload.Content ""}}
+            {{else}}
+            <h1 class="title is-4 mt-4">Content</h1>
+            <p class="content block is-medium has-text-justified">{{.payload.Content}}</p>
+            {{end}}
+
+            <h1 class="title is-4 mt-4">Attended</h1>
+            <div class="columns is-multiline">
+                {{range .payload.Users}}
+                <div class="column is-narrow">
+                    <a href="/u/view/{{.ID}}">
+                        <figure class="image is-64x64">
+                            <img class="is-rounded" src="https://avatars.dicebear.com/4.5/api/avataaars/{{.Avatar}}.svg"
+                                alt="Avatar">
+                        </figure>
+                        <span class="tag is-warning is-light is-large">{{.Username}}</span>
+                    </a>
+                </div>
+                {{end}}
+            </div>
+
+            {{ if eq .payload.Gpx ""}}
+            {{ if eq .payload.Mapycz ""}}
+            {{else}}
+            <h1 class="title is-4 mt-4">Route</h1>
+            <figure class="image">
+                <img src="{{.payload.Mapycz}}" alt="{{.payload.Name}} map">
+            </figure>
+
+            {{end}}
+            {{else}}
+            <h1 class="title is-4 mt-4">Villages</h1>
+            <div class="columns is-multiline">
+                {{range .payload.Villages}}
+                <div class="column is-narrow">
+                    <span class="tag is-info is-light is-large">{{.Village}}</span>
+                </div>
+                {{end}}
+            </div>
+            <h1 class="title is-4 mt-4">Route</h1>
+            <div id="map" class="box" style="height:350px"></div>
+            {{end}}
+
+            {{ if .is_logged_in}}
+            {{if not .isjoined}}
+            <form action="/trip/join/{{.payload.ID}}" method="post">
+                <button class="button is-success" type="submit" name="join" value="Join" href="">Join</button>
+            </form>
+            {{else}}
+            <form action="/trip/disjoin/{{.payload.ID}}" method="post">
+                <button class="button is-danger" type="submit" name="join" value="DisJoin">DisJoin</button>
+            </form>
+            {{end}}
+            {{end}}
+
+            <div id="chat">
+                {{ range .payload.Comments }}
+                <div class="box">
+                    <article class="media">
+                        <div class="media-left">
+                            <figure class="image is-64x64">
+                                <img src="https://avatars.dicebear.com/4.5/api/avataaars/{{.Avatar}}.svg" alt="Image">
+                            </figure>
+                        </div>
+                        <div class="media-content">
+                            <div class="content">
+                                <p>
+                                    <strong class="is-family-monospace">{{.Username}}</strong> <small
+                                        class="timestamps">{{.Timestamp}}</small>
+                                    <br>
+                                    {{.Message}}
+                                </p>
+                            </div>
+
+                        </div>
+                    </article>
+                </div>
+                {{end}}
+            </div>
+            {{if .is_logged_in}}
+            <div class="control">
+                <input id="text" type="text" maxlength="400" class="input is-primary " placeholder="Message" autofocus>
+            </div>
+            {{end}}
+        </div>
+
+
+    </section>
+
+
+    {{ if .is_logged_in }}
+    <script>
+        function unix2date(timestamp) {
+        var date = new Date(timestamp * 1000);
+        var hours = date.getHours();
+        var minutes = "0" + date.getMinutes();
+        var seconds = "0" + date.getSeconds();
+        var month = date.getMonth()+1;
+        var day = date.getDate();
+
+        // Will display time in 10:30:23 format
+        var formattedTime = hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2) + " " + day + "." + month;
+
+        return formattedTime
+        }
+
+
+
+        const timestamps = document.querySelectorAll(".timestamps");
+        for (var i = 0; i < timestamps.length; i++) {
+            timestamps[i].innerText = unix2date(parseInt(timestamps[i].innerText))
+        }
+        function Message(username, avatar, message, timestamp) {
+            return [
+                '<div class="box"><article class="media"><div class="media-left"><figure class="image is-64x64"><img src="https://avatars.dicebear.com/4.5/api/avataaars/',
+                avatar,
+                '.svg" alt="Image"></figure></div><div class="media-content"><div class="content"><p><strong class="is-family-monospace">',
+                username,
+                '</strong><small>',
+                timestamp,
+                '</small><br> ',
+                message,
+                '</p></div></div></article></div>'
+            ].join('\n');
+        }
+
+        function createElementFromHTML(htmlString) {
+            var div = document.createElement('div');
+            div.innerHTML = htmlString.trim();
+
+            // Change this to div.childNodes to support multiple top-level nodes
+            return div.firstChild;
+        }
+
+
+        var tripid = "{{.payload.ID}}"
+        var userid = "{{.userinfo.ID}}";
+        var avatar = "{{.userinfo.Avatar}}";
+        var username = "{{.userinfo.Username}}";
+        var url = "ws://" + document.location.host + "/trip/ws/" + tripid;
+        var ws = new WebSocket(url);
+
+        var chat = document.getElementById("chat");
+        var text = document.getElementById("text");
+
+        var now = function () {
+            var iso = new Date().toISOString();
+            return iso.split("T")[1].split(".")[0];
+        };
+        var timestamp = function () {
+            return unix2date(Math.floor(Date.now() / 1000))
+        }
+
+        ws.onmessage = function (msg) {
+            message = JSON.parse(msg.data)
+            var message = Message(message["username"], message["avatar"], message["message"], message["timestamp"])
+            chat.innerHTML += message;
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })
+        };
+
+        text.onkeydown = function (e) {
+            // Send in websocket
+            // - userid, timestamp, message, tripid
+            var message = {
+                "avatar": avatar,
+                "message": text.value,
+                "timestamp": timestamp(),
+                "username": username,
+            }
+
+
+            if (e.keyCode === 13 && text.value !== "") {
+                ws.send(JSON.stringify(message));
+                text.value = "";
+            }
+        };
+    </script>
     {{end}}
-
-    <h1 class="title is-4 mt-4">Attended</h1>
-    <div class="columns is-multiline">
-        {{range .payload.Users}}
-        <div class="column is-narrow">
-            <a href="/u/view/{{.ID}}">
-                <figure class="image is-64x64">
-                    <img class="is-rounded" src="https://avatars.dicebear.com/4.5/api/avataaars/{{.Avatar}}.svg"
-                        alt="Avatar">
-                </figure>
-                <span class="tag is-warning is-light is-large">{{.Username}}</span>
-            </a>
-        </div>
-        {{end}}
-    </div>
 
     {{ if eq .payload.Gpx ""}}
-    {{ if eq .payload.Mapycz ""}}
     {{else}}
-    <h1 class="title is-4 mt-4">Route</h1>
-    <figure class="image">
-        <img src="{{.payload.Mapycz}}" alt="{{.payload.Name}} map">
-    </figure>
-    
-    {{end}}
-    {{else}}
-    <h1 class="title is-4 mt-4">Villages</h1>
-    <div class="columns is-multiline">
-        {{range .payload.Villages}}
-        <div class="column is-narrow">
-            <span class="tag is-info is-light is-large">{{.Village}}</span>
-        </div>
-        {{end}}
-    </div>
-    <h1 class="title is-4 mt-4">Route</h1>
-    <div id="map" class="box" style="height:350px"></div>
-    {{end}}
+    <script type="text/javascript" src="https://api.mapy.cz/loader.js"></script>
+    <script type="text/javascript">Loader.load();</script>
 
-    {{ if .is_logged_in}}
-    {{if not .isjoined}}
-    <form action="/trip/join/{{.payload.ID}}" method="post">
-        <button class="button is-success" type="submit" name="join" value="Join" href="">Join</button>
-    </form>
-    {{else}}
-    <form action="/trip/disjoin/{{.payload.ID}}" method="post">
-        <button class="button is-danger" type="submit" name="join" value="DisJoin">DisJoin</button>
-    </form>
-    {{end}}
+
+
+    <script type="text/javascript">
+        //var center = SMap.Coords.fromWGS84(14.41790, 50.12655);
+        var m = new SMap(JAK.gel("map"));
+        m.addControl(new SMap.Control.Sync()); /* Aby mapa reagovala na změnu velikosti průhledu */
+        m.addDefaultLayer(SMap.DEF_TURIST).enable(); /* Turistický podklad */
+
+        var mouse = new SMap.Control.Mouse(SMap.MOUSE_PAN | SMap.MOUSE_WHEEL | SMap.MOUSE_ZOOM); /* Ovládání myší */
+        m.addControl(mouse);
+
+        var xhr = new JAK.Request(JAK.Request.XML);
+        xhr.setCallback(window, "response");
+        xhr.send("{{.payload.Gpx}}");
+
+        var response = function (xmlDoc) {
+            var gpx = new SMap.Layer.GPX(xmlDoc, null, { maxPoints: 10000 });
+            m.addLayer(gpx);
+            gpx.enable();
+            gpx.fit();
+        } 
+    </script>
     {{end}}
 
-
-</div>
-
-</section>
-
-
-{{ if eq .payload.Gpx ""}}
-{{else}}
-<script type="text/javascript" src="https://api.mapy.cz/loader.js"></script>
-<script type="text/javascript">Loader.load();</script>
-<script type="text/javascript">
-    //var center = SMap.Coords.fromWGS84(14.41790, 50.12655);
-    var m = new SMap(JAK.gel("map"));
-    m.addControl(new SMap.Control.Sync()); /* Aby mapa reagovala na změnu velikosti průhledu */
-    m.addDefaultLayer(SMap.DEF_TURIST).enable(); /* Turistický podklad */
-
-    var mouse = new SMap.Control.Mouse(SMap.MOUSE_PAN | SMap.MOUSE_WHEEL | SMap.MOUSE_ZOOM); /* Ovládání myší */
-    m.addControl(mouse);
-
-    var xhr = new JAK.Request(JAK.Request.XML);
-    xhr.setCallback(window, "response");
-    xhr.send("{{.payload.Gpx}}");
-
-    var response = function (xmlDoc) {
-        var gpx = new SMap.Layer.GPX(xmlDoc, null, { maxPoints: 10000 });
-        m.addLayer(gpx);
-        gpx.enable();
-        gpx.fit();
-    } 
-</script>
-{{end}}
-
-{{ template "footer.html" .}}
+    {{ template "footer.html" .}}

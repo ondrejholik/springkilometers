@@ -60,6 +60,8 @@ func initializeRoutes() {
 		tripRoutes.GET("/update/:id", mid.EnsureLoggedIn(), handlers.ShowTripUpdatePage)
 		tripRoutes.GET("/view/:id", handlers.GetTrip)
 
+		tripRoutes.GET("/ws/:tripID", handlers.Chat)
+
 		tripRoutes.POST("/create", mid.EnsureLoggedIn(), handlers.CreateTrip)
 		tripRoutes.POST("/delete/:id", mid.EnsureLoggedIn(), handlers.DeleteTrip)
 		tripRoutes.POST("/join/:id", mid.EnsureLoggedIn(), handlers.JoinTrip)
@@ -68,6 +70,7 @@ func initializeRoutes() {
 	}
 
 	router.NoRoute(handlers.NoRoute)
+
 }
 
 // SetDBMiddleware --
