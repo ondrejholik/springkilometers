@@ -18,13 +18,12 @@ type Gps struct {
 
 // Village --
 type Village struct {
-	ID       int     `json:"id"`
-	Village  string  `json:"village"`
-	Lat      float64 `json:"lat"`
-	Lon      float64 `json:"lon"`
-	District string  `json:"district"`
-	Region   string  `json:"region"`
-	Trips    []Trip  `gorm:"many2many:trip_village;"`
+	ID      int     `json:"id"`
+	Village string  `json:"village"`
+	Lat     float64 `json:"lat"`
+	Lon     float64 `json:"lon"`
+	Type    string  `json:"type"`
+	Trips   []Trip  `gorm:"many2many:trip_village;"`
 }
 
 // TripVillage --
