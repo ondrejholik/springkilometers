@@ -8,6 +8,7 @@ require (
 	github.com/chai2010/webp v1.1.0 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/disintegration/imageorient v0.0.0-20180920195336-8147d86e83ec
+	github.com/enescakir/emoji v1.0.0
 	github.com/gin-gonic/contrib v0.0.0-20201101042839-6a891bf89f19
 	github.com/gin-gonic/gin v1.6.3
 	github.com/go-ini/ini v1.62.0
@@ -19,6 +20,7 @@ require (
 	github.com/gorilla/websocket v1.4.2
 	github.com/jackc/pgx/v4 v4.10.1 // indirect
 	github.com/joho/godotenv v1.3.0
+	github.com/kyokomi/emoji/v2 v2.2.8
 	github.com/lib/pq v1.4.0 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/muesli/smartcrop v0.3.0
