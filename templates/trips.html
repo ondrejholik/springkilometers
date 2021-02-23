@@ -44,6 +44,12 @@
             datetime="{{.Year}}-{{.Month}}-{{.Day}}">{{.Day}}. {{.Month}}. {{.Year}}</time></span>
         <span class="tag is-primary is-light is-small"><i class="fas fa-clock"></i><time
             class="ml-1">{{printf "%02d" .Hour }}:{{printf "%02d" .Minute }}</time></span>
+
+        {{ if gt .CommentsCount 0}}
+        <span class="tag is-primary is-light is-small"><i class="fas fa-comment-alt mr-1"></i>
+          {{.CommentsCount}}
+        </span>
+        {{end}}
       </div>
     </div>
   </div>

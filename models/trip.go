@@ -53,8 +53,9 @@ type TripAll struct {
 	Avatar   string  `json:"avatar"`
 	Username string  `json:"username"`
 
-	Medium string `json:"medium"`
-	Small  string `json:"small"`
+	Medium        string `json:"medium"`
+	Small         string `json:"small"`
+	CommentsCount int    `json:"comments_count"`
 
 	Timestamp int64 `json:"timestamp"`
 	Year      int   `json:"year"`
@@ -77,7 +78,7 @@ func GetUserTrips(userID int) []Trip {
 // All trips with users sorted by date
 func GetTrips() []TripAll {
 	var trips []TripAll
-	result := db.Table("trips").Joins("left join users on users.id = author_id").Order("timestamp desc").Select("users.ID as author_id, trips.*, users.Username, users.Avatar").Scan(&trips)
+	result := db.Table("trips").Joins("left join users on users.id = author_id").Joins("left join comments on comments.trip_id = trips.id").Group("trips.id, users.id").Order("timestamp desc").Select("users.ID as author_id, trips.*, users.Username, users.Avatar, COUNT(comments.id) as comments_count").Scan(&trips)
 	if result.Error != nil {
 		log.Panic(result.Error)
 	}
