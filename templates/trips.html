@@ -45,6 +45,12 @@
         <span class="tag is-primary is-light is-small"><i class="fas fa-clock"></i><time
             class="ml-1">{{printf "%02d" .Hour }}:{{printf "%02d" .Minute }}</time></span>
 
+        {{ if gt .HeartCount 0}}
+        <span class="tag is-primary is-light is-small"><i class="fas fa-heart mr-1"></i>
+          {{.HeartCount}}
+        </span>
+        {{end}}
+
         {{ if gt .CommentsCount 0}}
         <span class="tag is-primary is-light is-small"><i class="fas fa-comment-alt mr-1"></i>
           {{.CommentsCount}}

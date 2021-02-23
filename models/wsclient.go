@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/enescakir/emoji"
 	"github.com/gorilla/websocket"
 )
 
@@ -54,7 +55,8 @@ func (s subscription) readPump() {
 			}
 			break
 		}
-		m := message{msg, s.room}
+		tmp := emoji.Sprint(string(msg))
+		m := message{[]byte(tmp), s.room}
 		Hub.broadcast <- m
 	}
 }

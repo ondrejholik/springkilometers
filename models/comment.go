@@ -5,8 +5,6 @@ import (
 	"log"
 	"strconv"
 	"time"
-
-	"github.com/enescakir/emoji"
 )
 
 // Comment model
@@ -35,7 +33,6 @@ func AddComment(message []byte, userID int, room string) {
 	var err error
 	comment.Timestamp = int(time.Now().Unix())
 	json.Unmarshal(message, &comment)
-	comment.Message = emoji.Sprint(comment.Message)
 
 	comment.UserID = userID
 	comment.TripID, err = strconv.Atoi(room)
