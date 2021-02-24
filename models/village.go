@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"log"
 	"math"
+	"strconv"
 	"sync"
 
 	"github.com/tkrajina/gpxgo/gpx"
@@ -172,7 +173,7 @@ func AddGpsToTrip(gpxpath string, tripID int) {
 
 	for _, poi := range pois {
 		wgpoi.Add(1)
-		go findGpxPoi(&gpx, poi, 100, poichan, wgpoi)
+		go findGpxPoi(&gpx, poi, 64, poichan, wgpoi)
 	}
 
 	for _, village := range villages {
@@ -194,6 +195,9 @@ func AddGpsToTrip(gpxpath string, tripID int) {
 		tripVillage = append(tripVillage, TripVillage{TripID: tripID, VillageID: vil})
 	}
 
-	go db.Table("trip_poi").Create(&tripPoi)
-	go db.Table("trip_village").Create(&tripVillage)
+	db.Table("trip_poi").Create(&tripPoi)
+	db.Table("trip_village").Create(&tripVillage)
+
+	MyCache.Delete(Ctx, "trip:"+strconv.Itoa(tripID))
+
 }
