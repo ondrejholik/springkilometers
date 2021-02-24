@@ -255,5 +255,49 @@
         {{end}}
     </div>
     {{end}}
+    <h1 class="title is-4 mt-4">Points of interest</h1>
+    <div class="columns is-multiline">
+        {{range .payload.Pois}}
+        <div class="column is-narrow">
+            <a href="https://mapy.cz/zakladni?source=coor&id={{.Lon}}%2C{{.Lat}}">
+                {{if eq .Type "peak"}}
+                {{ if eq .Name ""}}
+                <span class="tag is-info is-light is-large "><i class="fas fa-mountain mr-1"></i> {{.Name}} -
+                    {{.Elevation}}</span>
+                {{else}}
+                <span class="tag is-info is-light is-large "><i class="fas fa-mountain mr-1"></i> {{.Elevation}}</span>
+                {{end}}
+                {{end}}
+                {{if eq .Type "station"}}
+                <span class="tag is-info is-light is-large "><i class="fas fa-train mr-1"></i> {{.Name}}</span>
+                {{end}}
+
+                {{if eq .Type "halt"}}
+                <span class="tag is-info is-light is-large "><i class="fas fa-subway mr-1"></i> {{.Name}}</span>
+                {{end}}
+                {{if eq .Type "place_of_worship"}}
+                {{if eq .Name ""}}
+                <span class="tag is-info is-light is-large "><i class="fas fa-cross mr-1"></i> Place of worship</span>
+                {{else}}
+                <span class="tag is-info is-light is-large "><i class="fas fa-place-of-worship mr-1"></i>
+                    {{.Name}}</span>
+                {{end}}
+
+                {{end}}
+                {{if eq .Type "attraction"}}
+                <span class="tag is-info is-light is-large "><i class="fas fa-landmark mr-1"></i> {{.Name}}</span>
+
+                {{end}}
+                {{if eq .Type "viewpoint"}}
+                {{ if eq .Name ""}}
+                <span class="tag is-info is-light is-large"><i class="fas fa-eye mr-1"></i>Viewpoint</span>
+                {{else}}
+                <span class="tag is-info is-light is-large"><i class="fas fa-eye mr-1"></i> {{.Name}}</span>
+                {{end}}
+                {{end}}
+            </a>
+        </div>
+        {{end}}
+    </div>
 </div>
 {{ template "footer.html" .}}

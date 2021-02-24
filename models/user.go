@@ -46,6 +46,7 @@ type UserPage struct {
 	Achievments   Achievments
 	//Villages      []Village
 	Villages []Village `gorm:"many2many:trip_village;"`
+	Pois     []Poi     `gorm:"many2many:trip_poi;"`
 }
 
 // Result of database query
@@ -109,6 +110,7 @@ func GetUserPage(id int) UserPage {
 	var result Result
 	var user User
 	var villages []Village
+	var pois []Poi
 	db.Table("users").Select("users.id, users.avatar, users.username, AVG(trips.km) as avgkm, SUM(trips.km) as km, COUNT(trips.id) as tripcount, MAX(trips.km) as maxkm").Joins("JOIN user_trip ON users.id = user_trip.user_id").Joins("JOIN trips ON user_trip.trip_id = trips.id").Group("users.id, users.username").First(&result, id)
 	db.Table("users").Select("SUM(trips.km) as kmbike").Joins("JOIN user_trip ON users.id = user_trip.user_id").Joins("JOIN trips ON user_trip.trip_id = trips.id").Where("trips.withbike = ?", true).Group("users.id").First(&userpage, id)
 	//db.Table("users").Select("users.id, users.username, trips.*").Joins("JOIN user_trip ON users.id = user_trip.user_id").Joins("JOIN trips ON user_trip.trip_id = trips.id").First(&userpage, id)
@@ -116,7 +118,10 @@ func GetUserPage(id int) UserPage {
 		return db.Order("trips.timestamp DESC")
 	}).First(&user, id)
 
+	// Villages
 	db.Raw("select distinct villages.* from users inner join user_trip on user_trip.user_id = users.id inner join trips on trips.id = user_trip.trip_id inner join trip_village on trip_village.trip_id = trips.id inner join villages on villages.id = trip_village.village_id where users.username = ? order by villages.village", user.Username).Find(&villages)
+	// POIs
+	db.Raw("select distinct pois.* from users inner join user_trip on user_trip.user_id = users.id inner join trips on trips.id = user_trip.trip_id inner join trip_poi on trip_poi.trip_id = trips.id inner join pois on pois.id = trip_poi.poi_id where users.username = ? order by pois.id", user.Username).Find(&pois)
 
 	userpage.Km = result.Km
 	userpage.AvgKm = result.Avgkm
@@ -127,6 +132,7 @@ func GetUserPage(id int) UserPage {
 	userpage.Username = user.Username
 	userpage.VillagesCount = len(villages)
 	userpage.Villages = villages
+	userpage.Pois = pois
 	userpage.TripCount = result.Tripcount
 	userpage.Maxkm = result.Maxkm
 
