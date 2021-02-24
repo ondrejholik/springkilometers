@@ -26,10 +26,27 @@ type Village struct {
 	Trips   []Trip  `gorm:"many2many:trip_village;"`
 }
 
+// Poi -- Points of interest
+type Poi struct {
+	ID        int     `json:"id"`
+	Type      string  `json:"type"`
+	Name      string  `json:"name"`
+	Historic  string  `json:"historic"`
+	Elevation float64 `json:"elevation"`
+	Lat       float64 `json:"lat"`
+	Lon       float64 `json:"lon"`
+}
+
 // TripVillage --
 type TripVillage struct {
 	TripID    int `json:"trip_id"`
 	VillageID int `json:"village_id"`
+}
+
+// TripPoi --
+type TripPoi struct {
+	TripID int `json:"trip_id"`
+	PoiID  int `json:"poi_id"`
 }
 
 // LoadGpx --
@@ -69,23 +86,65 @@ func LoadGpx(filepath string) ([]Gps, gpx.GpxBounds) {
 
 // LoadVillages --
 // get data from database with bounds
-// first from file
 func LoadVillages(bounds gpx.GpxBounds) []Village {
 	var villages []Village
 	db.Table("villages").Where("lat BETWEEN ? AND ?", bounds.MinLatitude, bounds.MaxLatitude).Where("lon BETWEEN ? AND ?", bounds.MinLongitude, bounds.MaxLongitude).Scan(&villages)
+
 	return villages
+}
+
+// LoadPoi --
+func LoadPoi(bounds gpx.GpxBounds) []Poi {
+	var poi []Poi
+	db.Table("pois").Where("lat BETWEEN ? AND ?", bounds.MinLatitude, bounds.MaxLatitude).Where("lon BETWEEN ? AND ?", bounds.MinLongitude, bounds.MaxLongitude).Scan(&poi)
+
+	return poi
+}
+
+func findGpxPoi(gpx *[]Gps, poi Poi, distanceFrom float64, c chan int, wg *sync.WaitGroup) {
+	defer wg.Done()
+	for _, gps := range *gpx {
+		if harvestineDistancePoi(gps, poi) < distanceFrom {
+			c <- poi.ID
+			break
+		}
+	}
+}
+
+func findGpxVill(gpx *[]Gps, village Village, distanceFrom float64, c chan int, wg *sync.WaitGroup) {
+	defer wg.Done()
+	for _, gps := range *gpx {
+		if harvestineDistanceVil(gps, village) < distanceFrom {
+			c <- village.ID
+			break
+		}
+	}
 }
 
 func hsin(theta float64) float64 {
 	return math.Pow(math.Sin(theta/2), 2)
 }
 
-func harvestineDistance(gps Gps, vil Village) float64 {
+func harvestineDistancePoi(gps Gps, poi Poi) float64 {
 	var la1, lo1, la2, lo2, r float64
 	la1 = gps.Lat * math.Pi / 180
 	lo1 = gps.Lon * math.Pi / 180
-	la2 = vil.Lat * math.Pi / 180
-	lo2 = vil.Lon * math.Pi / 180
+	la2 = poi.Lat * math.Pi / 180
+	lo2 = poi.Lon * math.Pi / 180
+
+	r = 6378100 // Earth radius in METERS
+
+	// calculate
+	h := hsin(la2-la1) + math.Cos(la1)*math.Cos(la2)*hsin(lo2-lo1)
+
+	return 2 * r * math.Asin(math.Sqrt(h))
+}
+func harvestineDistanceVil(gps Gps, village Village) float64 {
+	var la1, lo1, la2, lo2, r float64
+	la1 = gps.Lat * math.Pi / 180
+	lo1 = gps.Lon * math.Pi / 180
+	la2 = village.Lat * math.Pi / 180
+	lo2 = village.Lon * math.Pi / 180
 
 	r = 6378100 // Earth radius in METERS
 
@@ -100,35 +159,41 @@ func monitorWorker(wg *sync.WaitGroup, cs chan int) {
 	close(cs)
 }
 
-func findGpx(village Village, gpx []Gps, c chan int, wg *sync.WaitGroup) {
-	defer wg.Done()
-	for _, gps := range gpx {
-		if harvestineDistance(gps, village) < 1000 {
-			c <- village.ID
-			break
-		}
-	}
-}
-
-// AddVillagesToTrip --
-func AddVillagesToTrip(gpxpath string, tripID int) {
-	res := make(chan int)
-	wg := &sync.WaitGroup{}
+// AddGpsToTrip --
+func AddGpsToTrip(gpxpath string, tripID int) {
+	villchan := make(chan int)
+	poichan := make(chan int)
+	wgpoi := &sync.WaitGroup{}
+	wgvill := &sync.WaitGroup{}
 	gpx, bounds := LoadGpx(gpxpath)
-	villages := LoadVillages(bounds)
+
+	var pois = LoadPoi(bounds)
+	var villages = LoadVillages(bounds)
+
+	for _, poi := range pois {
+		wgpoi.Add(1)
+		go findGpxPoi(&gpx, poi, 100, poichan, wgpoi)
+	}
 
 	for _, village := range villages {
-		wg.Add(1)
-		go findGpx(village, gpx, res, wg)
+		wgvill.Add(1)
+		go findGpxVill(&gpx, village, 1000, villchan, wgvill)
 	}
 
-	go monitorWorker(wg, res)
+	go monitorWorker(wgpoi, poichan)
+	go monitorWorker(wgvill, villchan)
 
 	var tripVillage []TripVillage
+	var tripPoi []TripPoi
 
-	for i := range res {
-		tripVillage = append(tripVillage, TripVillage{TripID: tripID, VillageID: i})
+	for poi := range poichan {
+		tripPoi = append(tripPoi, TripPoi{TripID: tripID, PoiID: poi})
 	}
 
-	db.Table("trip_village").Create(&tripVillage)
+	for vil := range villchan {
+		tripVillage = append(tripVillage, TripVillage{TripID: tripID, VillageID: vil})
+	}
+
+	go db.Table("trip_poi").Create(&tripPoi)
+	go db.Table("trip_village").Create(&tripVillage)
 }

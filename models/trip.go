@@ -35,6 +35,7 @@ type Trip struct {
 	AuthorID int       `json:"author_id"`
 	Users    []User    `gorm:"many2many:user_trip;"`
 	Villages []Village `gorm:"many2many:trip_village;"`
+	Pois     []Poi     `gorm:"many2many:trip_poi;"`
 	Comments []CommentResult
 
 	CreatedOn  time.Time `json:"created_on"`
@@ -106,7 +107,7 @@ func GetTripByID(id int) (*Trip, error) {
 // Return trip given id
 func GetTripByIDWithUsers(id int) (*Trip, error) {
 	var trip Trip
-	err := db.Preload("Users").Preload("Villages").First(&trip, id).Error
+	err := db.Preload("Users").Preload("Villages").Preload("Pois").First(&trip, id).Error
 	trip.Comments = GetComments(id)
 	if err != nil {
 		return nil, err
