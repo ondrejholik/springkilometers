@@ -38,6 +38,17 @@ type Poi struct {
 	Lon       float64 `json:"lon"`
 }
 
+// PoiStats --
+type PoiStats struct {
+	AttractionCount int     `json:"attraction_count"`
+	PeakCount       int     `json:"peak_count"`
+	RuinCount       int     `json:"ruin_count"`
+	StationCount    int     `json:"station_count"`
+	ViewpointCount  int     `json:"viewpoint_count"`
+	WorshipCount    int     `json:"worship_count"`
+	MaxPeak         float64 `json:"max_peak"`
+}
+
 // TripVillage --
 type TripVillage struct {
 	TripID    int `json:"trip_id"`
@@ -200,4 +211,10 @@ func AddGpsToTrip(gpxpath string, tripID int) {
 
 	MyCache.Delete(Ctx, "trip:"+strconv.Itoa(tripID))
 
+}
+
+// RemoveGpsFromTrip --
+func RemoveGpsFromTrip(tripID int) {
+	db.Table("trip_poi").Delete(&TripPoi{}, &TripPoi{TripID: tripID})
+	db.Table("trip_village").Delete(&TripVillage{}, &TripVillage{TripID: tripID})
 }
