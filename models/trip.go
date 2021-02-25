@@ -217,7 +217,7 @@ func CreateNewTrip(user User, name, content, kilometersCount, withbike, gpxname,
 }
 
 // UpdateTrip --
-func UpdateTrip(id, userID int, name, content, kilometersCount, withbike string) (*Trip, error) {
+func UpdateTrip(id, userID int, name, content, kilometersCount, withbike, gpxname string, hasgpx bool) (*Trip, error) {
 	kmc, err := strconv.ParseFloat(kilometersCount, 64)
 	if err != nil {
 		log.Println(err)
@@ -234,6 +234,9 @@ func UpdateTrip(id, userID int, name, content, kilometersCount, withbike string)
 	trip.Content = content
 	trip.Km = kmc
 	trip.Withbike = wb
+	if hasgpx {
+		trip.Gpx = gpxname
+	}
 
 	if !tripBelongsToUsername(id, userID) {
 		err := errors.New("Username does not belong to trip")
