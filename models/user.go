@@ -121,7 +121,7 @@ func GetUserPage(id int) UserPage {
 	// Villages
 	db.Raw("select distinct villages.* from users inner join user_trip on user_trip.user_id = users.id inner join trips on trips.id = user_trip.trip_id inner join trip_village on trip_village.trip_id = trips.id inner join villages on villages.id = trip_village.village_id where users.username = ? order by villages.village", user.Username).Find(&villages)
 	// POIs
-	db.Raw("select distinct pois.* from users inner join user_trip on user_trip.user_id = users.id inner join trips on trips.id = user_trip.trip_id inner join trip_poi on trip_poi.trip_id = trips.id inner join pois on pois.id = trip_poi.poi_id where users.username = ? order by pois.id", user.Username).Find(&pois)
+	db.Raw("select max(pois.elevation) as max_peak, count(*) FILTER (WHERE type = 'ruin') AS ruin_count, count(*) FILTER (WHERE type = 'attraction') as attraction_count, count(*) FILTER (WHERE type = 'station' OR type = 'halt') as station_count, count(*) FILTER (WHERE type = 'viewpoint') as viewpoint_count, count(*) FILTER (WHERE type = 'peak' ) as peak_count, count(*) FILTER (WHERE type = 'place_of_worship') as worship_count from users inner join user_trip on user_trip.user_id = users.id inner join trips on trips.id = user_trip.trip_id inner join trip_poi on trip_poi.trip_id = trips.id inner join pois on pois.id = trip_poi.poi_id where users.username = ?", user.Username).Find(&poiStats)
 
 	userpage.Km = result.Km
 	userpage.AvgKm = result.Avgkm
