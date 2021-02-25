@@ -3,7 +3,7 @@
 
 <h1 class="title is-1">Update Trip</h1>
 
-<form method="POST" action="/trip/update/{{.payload.ID}}">
+<form method="POST" action="/trip/update/{{.payload.ID}}" enctype="multipart/form-data">
   <div class="field">
     <label class="label">Name</label>
     <div class="control">
@@ -41,13 +41,13 @@
       <input type="file" name="image" accept="image/png, image/jpeg, image/webp">
     </div>
   </div>
+-->
   <div class="field">
     <div class="control">
       <h1 class="title is-4">Gpx file</h1>
-      <input type="file" name="gpx" accept="*.gpx *.xml">
+      <input type="file" name="gpx" accept=".gpx">
     </div>
   </div>
--->
 
   <div class="field is-grouped">
     <div class="control">
