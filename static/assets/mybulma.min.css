@@ -10504,3 +10504,8 @@ a.has-text-danger-dark:hover {
  background-color:#fafafa;
  padding:3rem 1.5rem 6rem
 }
+
+.black-and-white {
+    -webkit-filter: grayscale(100%); /* Safari 6.0 - 9.0 */
+    filter: grayscale(100%);
+}
