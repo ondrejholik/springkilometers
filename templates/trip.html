@@ -149,9 +149,9 @@
                     <a href="https://mapy.cz/zakladni?source=coor&id={{.Lon}}%2C{{.Lat}}">
                     {{if eq .Type "peak"}}
                         {{ if eq .Name ""}}
-                            <span class="tag is-info is-light is-large "><i class="fas fa-mountain mr-1"></i> {{.Name}} - {{.Elevation}}</span>
-                        {{else}}
                             <span class="tag is-info is-light is-large "><i class="fas fa-mountain mr-1"></i> {{.Elevation}}</span>
+                        {{else}}
+                        <span class="tag is-info is-light is-large "><i class="fas fa-mountain mr-1"></i> {{.Name}} {{.Elevation}}</span>
                         {{end}}
                     {{end}}
                     {{if eq .Type "station"}}

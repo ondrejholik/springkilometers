@@ -10,33 +10,7 @@
         </div>
     </div>
     <div class="block">
-        <div class="level">
-            <div class="level-item ">
-            </div>
-            <div class="level-item ">
-                {{if ge .payload.Achievments.Score 1}}
-                <i class="fas fa-star has-text-warning"></i>
-                {{else}}
-                <i class="fas fa-star "></i>
-                {{end}}
-
-                {{if ge .payload.Achievments.Score 2}}
-                <i class="fas fa-star has-text-warning"></i>
-                {{else}}
-                <i class="fas fa-star"></i>
-                {{end}}
-
-
-                {{if ge .payload.Achievments.Score 3}}
-                <i class="fas fa-star has-text-warning"></i>
-                {{else}}
-                <i class="fas fa-star"></i>
-                {{end}}
-            </div>
-            <div class="level-item ">
-            </div>
-        </div>
-    </div>
+          
     {{if ge .payload.Km 100.0 }}
     {{if ge .payload.Km 200.0 }}
     <progress class="progress is-warning" value="{{.payload.Km100}}" max="100">{{.payload.Km}}%</progress>
@@ -50,116 +24,15 @@
 
 
     <h1 class="title is-4 mt-4">Achievments</h1>
-    <nav class="level">
-        <div class="level-item has-text-centered">
-            {{ if .payload.Achievments.Walker1 }}
-            <div class="box has-background-info">
-                <p class="title is-4 has-text-primary-light">100km</p>
-            </div>
-            {{else}}
-            <div class="box has-background-dark">
-                <p class="title is-4 has-text-grey-dark">100km</p>
-            </div>
-            {{end}}
+    <div class="columns is-multiline">
+        {{range .payload.Achievments}}
+        <div class="column is-narrow">
+                <figure class="image is-64x64">
+                    <img class="is-rounded" src="/static/svg/{{.Name}}.svg">
+                </figure>
         </div>
-        <div class="level-item has-text-centered">
-            {{ if .payload.Achievments.Walker2 }}
-            <div class="box has-background-success">
-                <p class="title is-4 has-text-primary-light">200km</p>
-            </div>
-            {{else}}
-            <div class="box has-background-dark">
-                <p class="title is-4 has-text-grey-dark">200km</p>
-            </div>
-            {{end}}
-        </div>
-        <div class="level-item has-text-centered">
-            {{if .payload.Achievments.Walker3}}
-            <div class="box has-background-warning">
-                <p class="title is-4 has-text-primary-light">300km</p>
-            </div>
-            {{else}}
-            <div class="box has-background-dark">
-                <p class="title is-4 has-text-grey-dark">300km</p>
-            </div>
-            {{end}}
-        </div>
-
-    </nav>
-
-    <nav class="level">
-        <div class="level-item has-text-centered">
-            {{ if .payload.Achievments.Explorer1}}
-            <div class="box has-background-info">
-                <p class="title is-4 has-text-primary-light">5 villages</p>
-            </div>
-            {{else}}
-            <div class="box has-background-dark">
-                <p class="title is-4 has-text-grey-dark">5 villages</p>
-            </div>
-            {{end}}
-        </div>
-        <div class="level-item has-text-centered">
-            {{ if .payload.Achievments.Explorer2}}
-            <div class="box has-background-success">
-                <p class="title is-4 has-text-primary-light">10 villages</p>
-            </div>
-            {{else}}
-            <div class="box has-background-dark">
-                <p class="title is-4 has-text-grey-dark">10 villages</p>
-            </div>
-            {{end}}
-        </div>
-        <div class="level-item has-text-centered">
-            {{if .payload.Achievments.Explorer3}}
-            <div class="box has-background-warning">
-                <p class="title is-4 has-text-primary-light">15 villages</p>
-            </div>
-            {{else}}
-            <div class="box has-background-dark">
-                <p class="title is-4 has-text-grey-dark">15 villages</p>
-            </div>
-            {{end}}
-        </div>
-
-    </nav>
-
-    <nav class="level">
-        <div class="level-item has-text-centered">
-            {{ if .payload.Achievments.Challenger1}}
-            <div class="box has-background-info">
-                <p class="title is-4 has-text-primary-light">10km in trip</p>
-            </div>
-            {{else}}
-            <div class="box has-background-dark">
-                <p class="title is-4 has-text-grey-dark">10km in trip</p>
-            </div>
-            {{end}}
-        </div>
-        <div class="level-item has-text-centered">
-            {{ if .payload.Achievments.Challenger2}}
-            <div class="box has-background-success">
-                <p class="title is-4 has-text-primary-light">20km in trip</p>
-            </div>
-            {{else}}
-            <div class="box has-background-dark">
-                <p class="title is-4 has-text-grey-dark">20km in trip</p>
-            </div>
-            {{end}}
-        </div>
-        <div class="level-item has-text-centered">
-            {{if .payload.Achievments.Challenger3}}
-            <div class="box has-background-warning">
-                <p class="title is-4 has-text-primary-light">30km in trip</p>
-            </div>
-            {{else}}
-            <div class="box has-background-dark">
-                <p class="title is-4 has-text-grey-dark">30km in trip</p>
-            </div>
-            {{end}}
-        </div>
-
-    </nav>
+        {{end}}
+    </div>
 
 
 
@@ -291,10 +164,9 @@
             <a href="https://mapy.cz/zakladni?source=coor&id={{.Lon}}%2C{{.Lat}}">
                 {{if eq .Type "peak"}}
                 {{ if eq .Name ""}}
-                <span class="tag is-info is-light is-large "><i class="fas fa-mountain mr-1"></i> {{.Name}} -
-                    {{.Elevation}}</span>
-                {{else}}
                 <span class="tag is-info is-light is-large "><i class="fas fa-mountain mr-1"></i> {{.Elevation}}</span>
+                {{else}}
+                <span class="tag is-info is-light is-large "><i class="fas fa-mountain mr-1"></i> {{.Name}} {{.Elevation}}</span>
                 {{end}}
                 {{end}}
                 {{if eq .Type "station"}}
