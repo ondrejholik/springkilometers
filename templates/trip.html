@@ -102,9 +102,9 @@
             {{end}}
 
             <h1 class="title is-4 mt-4">Attended</h1>
-            <div class="columns is-multiline">
+            <div class="columns is-multiline is-mobile">
                 {{range .payload.Users}}
-                <div class="column is-narrow">
+                <div class="column is-narrow is-mobile">
                     <a href="/u/view/{{.ID}}">
                         <figure class="image is-64x64">
                             <img class="is-rounded" src="https://avatars.dicebear.com/4.5/api/avataaars/{{.Avatar}}.svg"
@@ -127,9 +127,9 @@
             {{end}}
             {{else}}
             <h1 class="title is-4 mt-4">Villages</h1>
-            <div class="columns is-multiline">
+            <div class="columns is-multiline is-mobile">
                 {{range .payload.Villages}}
-                <div class="column is-narrow">
+                <div class="column is-narrow is-mobile">
                     {{if eq .Type "city"}}
                         <span class="tag is-info is-light is-large "><i class="fas fa-city mr-1"></i> {{.Village}}</span>
                     {{else}}
@@ -143,9 +143,9 @@
                 {{end}}
             </div>
             <h1 class="title is-4 mt-4">Points of interest</h1>
-            <div class="columns is-multiline">
+            <div class="columns is-multiline is-mobile">
                 {{range .payload.Pois}}
-                <div class="column is-narrow">
+                <div class="column is-narrow is-mobile">
                     <a href="https://mapy.cz/zakladni?source=coor&id={{.Lon}}%2C{{.Lat}}">
                     {{if eq .Type "peak"}}
                         {{ if eq .Name ""}}
