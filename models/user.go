@@ -42,7 +42,7 @@ type UserPage struct {
 	AvgKm         float64 `json:"avgkm"`
 	Maxkm         float64 `json:"maxkm"`
 	TripCount     int     `json:"trip_count`
-	Achievments   Achievments
+	Achievments   []Achievment
 	Villages      []Village `gorm:"many2many:trip_village;"`
 	VillagesCount int       `json:"villages_count`
 	Pois          []Poi     `gorm:"many2many:trip_poi;"`
@@ -59,23 +59,6 @@ type Result struct {
 	Avgkm     float64
 	Maxkm     float64
 	Tripcount int
-}
-
-// Achievments --
-type Achievments struct {
-	Walker1 bool
-	Walker2 bool
-	Walker3 bool
-
-	Explorer1 bool
-	Explorer2 bool
-	Explorer3 bool
-
-	Challenger1 bool
-	Challenger2 bool
-	Challenger3 bool
-
-	Score int
 }
 
 // GetUsersScore --
@@ -106,7 +89,6 @@ func GetUserPage(id int) UserPage {
 	// ---------------//
 
 	var userpage UserPage
-	var achievments Achievments
 	var result Result
 	var user User
 	var villages []Village
@@ -123,8 +105,9 @@ func GetUserPage(id int) UserPage {
 	db.Raw("select distinct villages.* from users inner join user_trip on user_trip.user_id = users.id inner join trips on trips.id = user_trip.trip_id inner join trip_village on trip_village.trip_id = trips.id inner join villages on villages.id = trip_village.village_id where users.username = ? order by villages.village", user.Username).Find(&villages)
 	// POIs
 	db.Raw("select distinct pois.* from users inner join user_trip on user_trip.user_id = users.id inner join trips on trips.id = user_trip.trip_id inner join trip_poi on trip_poi.trip_id = trips.id inner join pois on pois.id = trip_poi.poi_id where users.username = ? order by pois.id", user.Username).Find(&pois)
-	db.Raw("select max(pois.elevation) as max_peak, count(*) FILTER (WHERE type = 'ruin') AS ruin_count, count(*) FILTER (WHERE type = 'attraction') as attraction_count, count(*) FILTER (WHERE type = 'station' OR type = 'halt') as station_count, count(*) FILTER (WHERE type = 'viewpoint') as viewpoint_count, count(*) FILTER (WHERE type = 'peak' ) as peak_count, count(*) FILTER (WHERE type = 'place_of_worship') as worship_count from users inner join user_trip on user_trip.user_id = users.id inner join trips on trips.id = user_trip.trip_id inner join trip_poi on trip_poi.trip_id = trips.id inner join pois on pois.id = trip_poi.poi_id where users.username = ?", user.Username).Find(&poiStats)
+	db.Raw("select max(pois.elevation) as max_peak, count(distinct pois.id) FILTER (WHERE type = 'ruin' or historic='castle') AS ruin_count, count(distinct pois.id) FILTER (WHERE type = 'attraction') as attraction_count, count(distinct pois.id) FILTER (WHERE type = 'station' OR type = 'halt') as station_count, count(distinct pois.id) FILTER (WHERE type = 'viewpoint') as viewpoint_count, count(distinct pois.id) FILTER (WHERE type = 'peak' ) as peak_count, count(distinct pois.id) FILTER (WHERE type = 'place_of_worship') as worship_count from users inner join user_trip on user_trip.user_id = users.id inner join trips on trips.id = user_trip.trip_id inner join trip_poi on trip_poi.trip_id = trips.id inner join pois on pois.id = trip_poi.poi_id where users.username = ?", user.Username).Find(&poiStats)
 
+	achievments := GetAchievmentsByUserIDForUserpage(user.ID)
 	userpage.Km = result.Km
 	userpage.AvgKm = result.Avgkm
 	userpage.Avatar = result.Avatar
@@ -138,6 +121,10 @@ func GetUserPage(id int) UserPage {
 	userpage.PoiStats = poiStats
 	userpage.TripCount = result.Tripcount
 	userpage.Maxkm = result.Maxkm
+	userpage.Achievments = achievments
+
+	log.Printf("%+v\n", poiStats)
+	log.Printf("%+v\n", pois)
 
 	userpage.Km100 = userpage.Km
 	if userpage.Km > 200 {
@@ -146,33 +133,6 @@ func GetUserPage(id int) UserPage {
 	} else if userpage.Km > 100 {
 		userpage.Km100 = userpage.Km - 100
 	}
-
-	achievments.Walker1 = userpage.Km >= 100
-	achievments.Walker2 = userpage.Km >= 200
-	achievments.Walker3 = userpage.Km >= 300
-
-	achievments.Explorer1 = len(villages) >= 5
-	achievments.Explorer2 = len(villages) >= 10
-	achievments.Explorer3 = len(villages) >= 15
-
-	achievments.Challenger1 = userpage.Maxkm >= 10
-	achievments.Challenger2 = userpage.Maxkm >= 20
-	achievments.Challenger3 = userpage.Maxkm >= 30
-
-	achievments.Score = 0
-	if achievments.Walker1 && achievments.Walker2 && achievments.Walker3 {
-		achievments.Score++
-	}
-
-	if achievments.Explorer1 && achievments.Explorer2 && achievments.Explorer3 {
-		achievments.Score++
-	}
-
-	if achievments.Challenger1 && achievments.Challenger2 && achievments.Challenger3 {
-		achievments.Score++
-	}
-
-	userpage.Achievments = achievments
 
 	return userpage
 }

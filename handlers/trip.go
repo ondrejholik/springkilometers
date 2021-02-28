@@ -133,6 +133,7 @@ func UpdateTrip(c *gin.Context) {
 		if err == nil {
 			models.UpdateTrip(tripID, claims.UserID, name, content, kilometersCount, withbike, gpxname, hasgpx)
 			models.MyCache.Delete(models.Ctx, "user:"+strconv.Itoa(claims.UserID))
+			models.MyCache.Delete(models.Ctx, "achievments:"+strconv.Itoa(claims.UserID))
 			MyTrips(c)
 		}
 
@@ -173,7 +174,6 @@ func GetTrip(c *gin.Context) {
 			userInfo, err = models.GetUserByID(claims.UserID)
 
 		}
-
 		var hasUser bool
 		if err == nil {
 			hasUser = models.TripHasUser(tripID, claims.Username)
@@ -238,6 +238,7 @@ func CreateTrip(c *gin.Context) {
 	if claims, err := ClaimsUser(c); err == nil {
 		user, err := models.GetUserByID(claims.UserID)
 		models.MyCache.Delete(models.Ctx, "user:"+strconv.Itoa(claims.UserID))
+		models.MyCache.Delete(models.Ctx, "achievments:"+strconv.Itoa(claims.UserID))
 		if err != nil {
 			c.AbortWithError(404, err)
 		}

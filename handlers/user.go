@@ -224,6 +224,7 @@ func JoinTrip(c *gin.Context) {
 
 			claims, err := ClaimsUser(c)
 			models.MyCache.Delete(models.Ctx, "user:"+strconv.Itoa(claims.UserID))
+			models.MyCache.Delete(models.Ctx, "achievments:"+strconv.Itoa(claims.UserID))
 			models.MyCache.Delete(models.Ctx, "trip:"+strconv.Itoa(tripID))
 			if err == nil {
 				hasUser := models.TripHasUser(tripID, claims.Username)
@@ -266,6 +267,7 @@ func DisjoinTrip(c *gin.Context) {
 			claims, err := ClaimsUser(c)
 			models.MyCache.Delete(models.Ctx, "user:"+strconv.Itoa(claims.UserID))
 			models.MyCache.Delete(models.Ctx, "trip:"+strconv.Itoa(tripID))
+			models.MyCache.Delete(models.Ctx, "achievments:"+strconv.Itoa(claims.UserID))
 			if err == nil {
 				// TODO: replace with ID
 				models.UserDisjoinsTrip(claims.Username, *trip)
