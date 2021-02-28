@@ -1,0 +1,43 @@
+{{ template "header.html" .}}
+
+<div class="column is-half  is-offset-one-quarter ">
+    <div class="block">
+        <div class="level">
+            <div class="level-item ">
+            </div>
+            <div class="level-item ">
+
+            </div>
+            <div class="level-item ">
+            </div>
+        </div>
+    </div>
+
+    <h1 class="title is-2 mt-4 has-text-centered">Achievments</h1>
+    {{ range .payload}}
+    <div class="box media">
+        <div class="media-left">
+        <figure class="image is-128x128">
+            {{ if .Done}}
+            <img src="/static/svg/{{.Name}}.svg">
+            {{ else }}
+            <img src="/static/svg/{{.Name}}.svg" class="black-and-white">
+            {{end}}
+        </figure>
+        </div>
+        <div class="media-content">
+        <h1 class="title is-4 mt-4">{{.Name}} ({{.MyCount}})</h1>
+        <div class="content">
+            <p>
+                {{.Description}}
+            </p>
+        </div>
+        </div>  
+    </div>
+    {{end}}
+    
+
+
+
+</div>
+{{ template "footer.html" .}}
