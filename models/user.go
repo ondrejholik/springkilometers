@@ -65,7 +65,7 @@ type Result struct {
 func GetUsersScore() []Result {
 	var result []Result
 
-	db.Table("users").Select("users.id, users.username, users.avatar, SUM(trips.km) as km").Joins("JOIN user_trip ON users.id = user_trip.user_id").Joins("JOIN trips ON user_trip.trip_id = trips.id").Group("users.id, users.username").Order("km desc").Scan(&result)
+	db.Table("users").Select("users.id, users.username, users.avatar, sum(case when trips.withbike then trips.km * 0.25 else trips.km end) AS km").Joins("JOIN user_trip ON users.id = user_trip.user_id").Joins("JOIN trips ON user_trip.trip_id = trips.id").Group("users.id, users.username").Order("km desc").Scan(&result)
 	for i := range result {
 		result[i].Km100 = result[i].Km
 		if result[i].Km > 200 {
