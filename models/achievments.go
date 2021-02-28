@@ -83,8 +83,8 @@ func GetAchievmentsByUserID(userID int) []Achievment {
 		db.ScanRows(rows, &achievment)
 		if achmap[achievment.Group] >= float64(achievment.Count) {
 			achievment.Done = true
-			achievment.MyCount = achmap[achievment.Group]
 		}
+		achievment.MyCount = achmap[achievment.Group]
 		achievments = append(achievments, achievment)
 	}
 	return achievments
