@@ -11,7 +11,7 @@ func initializeRoutes() {
 	// Use the setUserStatus middleware for every route to set a flag
 	// indicating whether the request was from an authenticated user or not
 	router.Use(mid.SetUserStatus())
-	router.Use(gzip.Gzip(gzip.DefaultCompression))
+	router.Use(gzip.Gzip(gzip.BestCompression))
 	router.Static("/static", "./static")
 
 	// Use db in context
@@ -67,6 +67,12 @@ func initializeRoutes() {
 		tripRoutes.POST("/join/:id", mid.EnsureLoggedIn(), handlers.JoinTrip)
 		tripRoutes.POST("/disjoin/:id", mid.EnsureLoggedIn(), handlers.DisjoinTrip)
 		tripRoutes.POST("/update/:id", mid.EnsureLoggedIn(), handlers.UpdateTrip)
+	}
+
+	achievmentRoutes := router.Group("/achievments")
+	{
+		achievmentRoutes.GET("/", mid.EnsureLoggedIn(), handlers.ShowAchievmentsPage)
+
 	}
 
 	router.NoRoute(handlers.NoRoute)
